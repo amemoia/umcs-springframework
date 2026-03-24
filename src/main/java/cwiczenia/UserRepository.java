@@ -14,6 +14,24 @@ public class UserRepository implements IUserRepository {
         load();
     }
 
+    @Override
+    public boolean registerNewUser(String login, String password, String role) {
+        if (getUser(login) != null) return false;
+        String hashed = Authentication.hashPassword(password);
+        User newUser = new User(login, hashed, role);
+        users.put(login, newUser);
+        save();
+        return true;
+    }
+
+    @Override
+    public int removeUser(String login, User admin) {
+        if (admin.getRole().equals("USER")) return 1;
+        if (getUser(login).getRentedVehicleId() != null) return 2;
+        users.remove(login);
+        save();
+        return 0;
+    }
 
     @Override
     public User getUser(String login) {
