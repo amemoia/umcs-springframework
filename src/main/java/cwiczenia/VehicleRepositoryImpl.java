@@ -1,55 +1,64 @@
 package cwiczenia;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class VehicleRepositoryImpl implements IVehicleRepository {
-    private List<Vehicle> vehicles = new ArrayList<>();
-    private File csv = new File("vehicles.txt");
+    private Map<String, Vehicle> vehicles = new HashMap<>();
+    private File csv = new File("vehicles.csv");
 
     public VehicleRepositoryImpl() {
         load();
     }
 
     @Override
-    public void rentVehicle(Vehicle v) {
-        if (v.isRented()) System.out.println("cannot rent this vehicle - already taken");
+    public boolean rentVehicle(String id) {
+        Vehicle v = getVehicle(id);
+        if (v.isRented()) { System.out.println("cannot rent this vehicle - already taken"); return false; }
         else {
             System.out.println("renting: " + v);
             v.setRented(true);
-            for (int i = 0; i < vehicles.size(); i++) {
-                if (vehicles.get(i).id.equals(v.id)) {
-                    vehicles.set(i, v);
-                    break;
-                }
-            }
+            vehicles.put(v.id, v);
+            return true;
         }
     }
 
     @Override
-    public void returnVehicle(Vehicle v) {
-        if (!v.isRented()) System.out.println("cannot return this vehicle - it's not rented");
+    public boolean returnVehicle(String id) {
+        Vehicle v = getVehicle(id);
+        if (!v.isRented()) { System.out.println("cannot return this vehicle - it's not rented"); return false; }
         else {
             System.out.println("returning: " + v);
             v.setRented(false);
-            for (int i = 0; i < vehicles.size(); i++) {
-                if (vehicles.get(i).id.equals(v.id)) {
-                    vehicles.set(i, v);
-                    break;
-                }
-            }
+            vehicles.put(v.id, v);
+            return true;
         }
     }
 
     @Override
     public List<Vehicle> getVehicles() {
-        List<Vehicle> copy = new ArrayList<Vehicle>();
-        for (Vehicle v : vehicles) {
+        List<Vehicle> copy = new ArrayList<>();
+        for (Vehicle v : vehicles.values()) {
             copy.add(v.copy());
         }
         return copy;
+    }
+
+    @Override
+    public Vehicle getVehicle(String id) {
+        return vehicles.get(id);
+    }
+
+    @Override
+    public boolean add(Vehicle vehicle) {
+        vehicles.put(vehicle.id, vehicle);
+        return true;
+    }
+
+    @Override
+    public boolean remove(String id) {
+        vehicles.remove(id);
+        return true;
     }
 
     @Override
@@ -58,16 +67,15 @@ public class VehicleRepositoryImpl implements IVehicleRepository {
         try {
             PrintWriter myWriter = new PrintWriter(csv);
             //myWriter.write("Files in Java might be tricky, but it is fun enough!");
-            for (Vehicle v : vehicles) myWriter.println(v.toCSV());
+            for (Vehicle v : vehicles.values()) myWriter.println(v.toCSV());
             myWriter.close();  // must close manually
-            System.out.println("save successful");
+            System.out.println("vehicle repo save successful");
         } catch (IOException e) {
             System.out.println("error!");
             e.printStackTrace();
         }
     }
 
-    @Override
     public void load() {
         // w3schools
         try (Scanner myReader = new Scanner(csv)) {
@@ -78,12 +86,12 @@ public class VehicleRepositoryImpl implements IVehicleRepository {
                 String type = split[0];
                 Vehicle cur;
                 if (type.equals("MOTORCYCLE")) {
-                    cur = new Motorcycle(split[1], split[2], split[3], Integer.parseInt(split[4]), Float.parseFloat(split[5]), Boolean.parseBoolean(split[6]), split[7]);
-                    vehicles.add(cur);
+                    cur = new Motorcycle(split[1], split[2], split[3], Integer.parseInt(split[4]), Float.parseFloat(split[5]), Boolean.parseBoolean(split[6]), MotorcycleCategory.valueOf(split[7]));
+                    vehicles.put(cur.id, cur);
                 }
                 else if (type.equals("CAR")) {
                     cur = new Car(split[1], split[2], split[3], Integer.parseInt(split[4]), Float.parseFloat(split[5]), Boolean.parseBoolean(split[6]));
-                    vehicles.add(cur);
+                    vehicles.put(cur.id, cur);
                 }
 
                 System.out.println(line);

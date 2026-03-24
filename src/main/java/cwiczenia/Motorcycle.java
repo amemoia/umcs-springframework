@@ -1,7 +1,7 @@
 package cwiczenia;
 
 class Motorcycle extends Vehicle {
-    String kategoria;
+    MotorcycleCategory kategoria;
 
     @Override
     public String toCSV() {
@@ -13,7 +13,7 @@ class Motorcycle extends Vehicle {
         return new Motorcycle(id, brand, model, year, price, rented, kategoria);
     }
 
-    Motorcycle(String id, String brand, String model, int year, float price, boolean rented, String kategoria) {
+    public Motorcycle(String id, String brand, String model, int year, float price, boolean rented, MotorcycleCategory kategoria) {
         this.id = id;
         this.brand = brand;
         this.model = model;

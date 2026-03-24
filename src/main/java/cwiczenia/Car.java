@@ -13,7 +13,7 @@ public class Car extends Vehicle {
     }
 
 
-    Car(String id, String brand, String model, int year, float price, boolean rented) {
+    public Car(String id, String brand, String model, int year, float price, boolean rented) {
         this.id = id;
         this.brand = brand;
         this.model = model;
