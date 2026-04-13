@@ -1,12 +1,12 @@
 package cwiczenia;
 import java.util.List;
 
-public interface IVehicleRepository {
-    boolean rentVehicle(String id);
-    boolean returnVehicle(String id);
+
+public interface VehicleRepository {
     List<Vehicle> getVehicles();
     Vehicle getVehicle(String id);
-    boolean add(Vehicle vehicle);
+    Vehicle add(Vehicle vehicle);
+    Vehicle update(Vehicle vehicle);
     boolean remove(String id);
     void save();
     void load();

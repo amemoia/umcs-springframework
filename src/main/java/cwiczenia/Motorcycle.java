@@ -1,6 +1,6 @@
 package cwiczenia;
 
-class Motorcycle extends Vehicle {
+public class Motorcycle extends Vehicle {
     MotorcycleCategory kategoria;
 
     @Override
