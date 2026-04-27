@@ -9,9 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-/**
- * Implementacja UserRepository - obsługuje przechowywanie użytkowników w JSON
- */
 public class UserRepositoryImpl implements UserRepository {
     private Map<String, User> users = new HashMap<>();
     private File jsonFile = new File("users.json");
@@ -96,7 +93,7 @@ public class UserRepositoryImpl implements UserRepository {
     public void load() {
         try {
             if (!jsonFile.exists()) {
-                System.out.println("users.json not found, starting with empty users");
+                System.out.println("users.json not found");
                 return;
             }
 
@@ -107,15 +104,8 @@ public class UserRepositoryImpl implements UserRepository {
                 for (JsonElement element : array) {
                     JsonObject obj = element.getAsJsonObject();
                     
-                    // Bezpieczne odczytywanie pól
-                    if (!obj.has("login")) {
-                        System.out.println("Skipping invalid user entry: missing login");
-                        continue;
-                    }
-                    
                     String login = obj.get("login").getAsString();
-                    // Obsługa "passwordHash" lub "password"
-                    String password = obj.has("passwordHash") 
+                    String password = obj.has("passwordHash")
                         ? obj.get("passwordHash").getAsString()
                         : (obj.has("password") ? obj.get("password").getAsString() : "");
                     String role = obj.has("role") ? obj.get("role").getAsString() : "USER";
@@ -131,7 +121,7 @@ public class UserRepositoryImpl implements UserRepository {
                 }
             }
         } catch (IOException e) {
-            System.out.println("error loading users!");
+            System.out.println("error loading user");
             e.printStackTrace();
         }
     }

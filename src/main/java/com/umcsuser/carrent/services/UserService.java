@@ -22,14 +22,14 @@ public class UserService {
         User user = userRepository.getUsers().stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Użytkownik o ID " + id + " nie istnieje."));
+                .orElseThrow(() -> new RuntimeException("User  " + id + " doesnt exist?"));
         return user;
     }
 
     public void deleteUser(String userId, String adminId) {
         User admin = findById(adminId);
         if (userRepository.removeUser(userId, admin) <= 0) {
-            throw new RuntimeException("Nie udało się usunąć użytkownika.");
+            throw new RuntimeException("couldnt remove this user");
         }
     }
 }

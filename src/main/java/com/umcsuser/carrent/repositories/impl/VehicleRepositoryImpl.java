@@ -78,9 +78,9 @@ public class VehicleRepositoryImpl implements VehicleRepository {
             
             String json = gson.toJson(array);
             Files.write(Paths.get(jsonFile.getPath()), json.getBytes());
-            System.out.println("vehicle repo save successful");
+            System.out.println("vehicle repo saved");
         } catch (IOException e) {
-            System.out.println("error saving vehicles!");
+            System.out.println("error saving vehicles");
             e.printStackTrace();
         }
     }
@@ -89,7 +89,7 @@ public class VehicleRepositoryImpl implements VehicleRepository {
     public void load() {
         try {
             if (!jsonFile.exists()) {
-                System.out.println("vehicles.json not found, starting with empty vehicles");
+                System.out.println("vehicles.json not found");
                 return;
             }
 
@@ -100,13 +100,6 @@ public class VehicleRepositoryImpl implements VehicleRepository {
                 for (JsonElement element : array) {
                     JsonObject obj = element.getAsJsonObject();
                     
-                    // Bezpieczne odczytywanie pól
-                    if (!obj.has("id") || !obj.has("brand") || !obj.has("model") || 
-                        !obj.has("year") || !obj.has("price")) {
-                        System.out.println("Skipping invalid vehicle entry: missing required fields");
-                        continue;
-                    }
-                    
                     String id = obj.get("id").getAsString();
                     String brand = obj.get("brand").getAsString();
                     String model = obj.get("model").getAsString();
@@ -114,35 +107,28 @@ public class VehicleRepositoryImpl implements VehicleRepository {
                     float price = obj.get("price").getAsFloat();
                     boolean rented = obj.has("rented") ? obj.get("rented").getAsBoolean() : false;
                     
-                    // Obsługa pola "category" zamiast "type"
                     String category = obj.has("category") ? obj.get("category").getAsString() : null;
                     if (category == null && obj.has("type")) {
                         category = obj.get("type").getAsString();
-                    }
-                    
-                    if (category == null) {
-                        System.out.println("Skipping vehicle without type/category");
-                        continue;
                     }
                     
                     Vehicle vehicle;
                     if (category.equalsIgnoreCase("CAR")) {
                         vehicle = new Car(id, brand, model, year, price, rented);
                     } else if (category.equalsIgnoreCase("MOTORCYCLE")) {
-                        MotorcycleCategory cat = MotorcycleCategory.A; // Domyślna kategoria
+                        MotorcycleCategory cat = MotorcycleCategory.A;
                         
-                        // Spróbuj pobrać kategorię
                         if (obj.has("category")) {
                             String licence = obj.get("category").getAsString();
                             try {
                                 cat = MotorcycleCategory.valueOf(licence);
                             } catch (IllegalArgumentException e) {
-                                System.out.println("Invalid motorcycle category: " + licence);
+                                System.out.println("invalid category: " + licence);
                             }
                         }
                         vehicle = new Motorcycle(id, brand, model, year, price, rented, cat);
                     } else {
-                        System.out.println("Skipping unknown vehicle type: " + category);
+                        System.out.println("unknown vehicle type: " + category);
                         continue;
                     }
                     
@@ -150,7 +136,7 @@ public class VehicleRepositoryImpl implements VehicleRepository {
                 }
             }
         } catch (IOException e) {
-            System.out.println("error loading vehicles!");
+            System.out.println("error loading vehicle");
             e.printStackTrace();
         }
     }

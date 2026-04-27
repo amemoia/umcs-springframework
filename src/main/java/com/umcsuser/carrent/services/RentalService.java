@@ -48,7 +48,7 @@ public class RentalService {
         }
 
         if (user.getRentedVehicleId() != null && !user.getRentedVehicleId().isEmpty()) {
-            System.out.println("User already has a rented vehicle");
+            System.out.println("User already has a rental");
             return null;
         }
 
@@ -63,7 +63,7 @@ public class RentalService {
         user.setRentedVehicleId(vehicleId);
         userRepository.update(user);
 
-        System.out.println("Vehicle rented successfully: " + vehicle);
+        System.out.println("Vehicle rented: " + vehicle);
         return rental;
     }
 
@@ -89,7 +89,7 @@ public class RentalService {
 
     public void returnVehicle(String userId) {
         Rental activeRental = findActiveRentalByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie posiada aktywnego wypożyczenia."));
+                .orElseThrow(() -> new RuntimeException("User has no rented vehicle"));
         
         returnVehicle(userId, activeRental.getVehicleId());
     }
@@ -133,7 +133,7 @@ public class RentalService {
         user.setRentedVehicleId(null);
         userRepository.update(user);
 
-        System.out.println("Vehicle returned successfully: " + vehicle);
+        System.out.println("Vehicle returned: " + vehicle);
         return rental;
     }
 

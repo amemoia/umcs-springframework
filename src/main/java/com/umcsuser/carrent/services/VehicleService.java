@@ -31,7 +31,7 @@ public class VehicleService {
     public Vehicle findById(String id) {
         Vehicle vehicle = vehicleRepository.getVehicle(id);
         if (vehicle == null) {
-            throw new RuntimeException("Pojazd o ID " + id + " nie istnieje.");
+            throw new RuntimeException("Vehicle  " + id + " does not exist");
         }
         return vehicle;
     }
@@ -42,7 +42,7 @@ public class VehicleService {
 
     public void removeVehicle(String id) {
         if (!vehicleRepository.remove(id)) {
-            throw new RuntimeException("Nie można usunąć pojazdu o ID " + id);
+            throw new RuntimeException("Couldnt remove vehicle " + id);
         }
     }
 

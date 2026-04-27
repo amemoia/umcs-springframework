@@ -73,7 +73,7 @@ public class RentalRepositoryImpl implements RentalRepository {
     private void load() {
         try {
             if (!jsonFile.exists()) {
-                System.out.println("rentals.json not found, starting with empty rentals");
+                System.out.println("rentals.json not found");
                 return;
             }
 
@@ -83,12 +83,6 @@ public class RentalRepositoryImpl implements RentalRepository {
             if (array != null) {
                 for (JsonElement element : array) {
                     JsonObject obj = element.getAsJsonObject();
-                    
-                    // Bezpieczne odczytywanie pól
-                    if (!obj.has("id") || !obj.has("vehicleId") || !obj.has("userId") || !obj.has("rentDateTime")) {
-                        System.out.println("Skipping invalid rental entry: missing required fields");
-                        continue;
-                    }
                     
                     String id = obj.get("id").getAsString();
                     String vehicleId = obj.get("vehicleId").getAsString();
@@ -103,7 +97,7 @@ public class RentalRepositoryImpl implements RentalRepository {
                 }
             }
         } catch (IOException e) {
-            System.out.println("error loading rentals!");
+            System.out.println("error loading rental");
             e.printStackTrace();
         }
     }

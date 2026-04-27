@@ -17,6 +17,6 @@ public class VehicleCategoryConfigService {
 
     public com.umcsuser.carrent.models.VehicleCategoryConfig getByCategory(String category) {
         return repository.findByCategory(category)
-                .orElseThrow(() -> new RuntimeException("Kategoria " + category + " nie istnieje."));
+                .orElseThrow(() -> new RuntimeException("category " + category + " does not exist"));
     }
 }
