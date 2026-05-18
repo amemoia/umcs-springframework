@@ -1,17 +1,53 @@
 package com.umcsuser.carrent.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+@Entity
+@Table(name = "vehicles")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "category")
 public abstract class Vehicle {
-    protected String id;
+    @Id
+    @Column(name = "id", columnDefinition = "UUID")
+    protected UUID id;
+
+    @Column(nullable = false)
     protected String brand;
+
+    @Column(nullable = false)
     protected String model;
+
+    @Column(nullable = false)
     protected int year;
+
+    @Column(nullable = false)
     protected float price;
+
+    @Column(nullable = false)
     protected boolean rented;
+
+    @Column(name = "category", insertable = false, updatable = false)
     protected String category;
+
+    @Column(name = "plate")
+    protected String plate;
+
+    @Transient
     protected Map<String, Object> attributes = new HashMap<>();
+
+    protected Vehicle() {
+    }
 
     public static VehicleBuilder builder() {
         return new VehicleBuilder();
@@ -20,7 +56,11 @@ public abstract class Vehicle {
     public abstract Vehicle copy();
 
     public String getId() {
-        return id;
+        return id != null ? id.toString() : null;
+    }
+
+    public void setId(String id) {
+        this.id = id != null ? UUID.fromString(id) : null;
     }
 
     public String getBrand() {
@@ -72,11 +112,29 @@ public abstract class Vehicle {
     }
 
     public Map<String, Object> getAttributes() {
+        if (plate != null && !attributes.containsKey("plate")) {
+            attributes.put("plate", plate);
+        }
         return attributes;
     }
 
     public void addAttribute(String name, Object value) {
+        if (name != null && "plate".equalsIgnoreCase(name)) {
+            this.plate = value != null ? value.toString() : null;
+            return;
+        }
         this.attributes.put(name, value);
+    }
+
+    public String getPlate() {
+        return plate;
+    }
+
+    public void setPlate(String plate) {
+        this.plate = plate;
+        if (plate != null) {
+            this.attributes.put("plate", plate);
+        }
     }
 
     public String toCSV() {
@@ -131,18 +189,18 @@ public abstract class Vehicle {
         public VehicleBuilder category(String category) { this.category = category; return this; }
 
         public Vehicle build() {
+            String newId = (id == null || id.isBlank()) ? java.util.UUID.randomUUID().toString() : id;
             Vehicle vehicle;
             if ("CAR".equalsIgnoreCase(category)) {
-                vehicle = new Car(id, brand, model, year, price, false);
+                vehicle = new Car(newId, brand, model, year, price, false);
             } else if ("MOTORCYCLE".equalsIgnoreCase(category)) {
-                vehicle = new Motorcycle(id, brand, model, year, price, false, null);
+                vehicle = new Motorcycle(newId, brand, model, year, price, false, null);
             } else {
-                // Default to Car
-                vehicle = new Car(id, brand, model, year, price, false);
+                vehicle = new Car(newId, brand, model, year, price, false);
             }
             vehicle.setCategory(category);
             if (plate != null) {
-                vehicle.addAttribute("plate", plate);
+                vehicle.setPlate(plate);
             }
             return vehicle;
         }

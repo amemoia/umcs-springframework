@@ -5,7 +5,7 @@ import com.umcsuser.carrent.models.User;
 
 import java.util.List;
 
-public class UserService {
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RentalService rentalService;
 

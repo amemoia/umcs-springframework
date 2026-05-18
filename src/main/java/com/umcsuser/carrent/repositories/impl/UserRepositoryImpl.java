@@ -105,6 +105,7 @@ public class UserRepositoryImpl implements UserRepository {
                     JsonObject obj = element.getAsJsonObject();
                     
                     String login = obj.get("login").getAsString();
+                    String id = obj.has("id") ? obj.get("id").getAsString() : null;
                     String password = obj.has("passwordHash")
                         ? obj.get("passwordHash").getAsString()
                         : (obj.has("password") ? obj.get("password").getAsString() : "");
@@ -113,9 +114,14 @@ public class UserRepositoryImpl implements UserRepository {
                         ? obj.get("rentedVehicleId").getAsString()
                         : null;
                     
-                    User user = new User(login, password, role);
-                    if (rentedVehicleId != null) {
-                        user.setRentedVehicleId(rentedVehicleId);
+                    User user;
+                    if (id != null) {
+                        user = new User(id, login, password, role, rentedVehicleId);
+                    } else {
+                        user = new User(login, password, role);
+                        if (rentedVehicleId != null) {
+                            user.setRentedVehicleId(rentedVehicleId);
+                        }
                     }
                     users.put(login, user);
                 }

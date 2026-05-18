@@ -42,6 +42,12 @@ public class RentalRepositoryImpl implements RentalRepository {
     }
 
     @Override
+    public void deleteByVehicleId(String vehicleId) {
+        rentals.values().removeIf(r -> r.getVehicleId().equals(vehicleId));
+        saveToFile();
+    }
+
+    @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         return rentals.values().stream()
                 .filter(r -> r.getVehicleId().equals(vehicleId) && r.isActive())

@@ -4,7 +4,7 @@ import com.umcsuser.carrent.repositories.VehicleCategoryConfigRepository;
 
 import java.util.List;
 
-public class VehicleCategoryConfigService {
+public class VehicleCategoryConfigService implements IVehicleCategoryConfigService {
     private final VehicleCategoryConfigRepository repository;
 
     public VehicleCategoryConfigService(VehicleCategoryConfigRepository repository) {

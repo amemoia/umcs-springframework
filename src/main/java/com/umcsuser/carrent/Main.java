@@ -14,13 +14,51 @@ import com.umcsuser.carrent.services.UserService;
 import com.umcsuser.carrent.services.VehicleCategoryConfigService;
 import com.umcsuser.carrent.services.VehicleService;
 import com.umcsuser.carrent.services.VehicleValidator;
+import com.umcsuser.carrent.repositories.impl.*;
 
 public class Main {
     public static void main(String[] args) {
-        VehicleRepository vehicleRepository = new VehicleRepositoryImpl();
-        UserRepository userRepository = new UserRepositoryImpl();
-        RentalRepository rentalRepository = new RentalRepositoryImpl();
+        String repoType = "hibernate";
+
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("json") || args[0].equalsIgnoreCase("jdbc") || args[0].equalsIgnoreCase("hibernate")) {
+                repoType = args[0].toLowerCase();
+            }
+        }
+
+        VehicleRepository vehicleRepository;
+        UserRepository userRepository;
+        RentalRepository rentalRepository;
         VehicleCategoryConfigRepository categoryConfigRepository = new VehicleCategoryConfigJsonRepository();
+
+        if ("hibernate".equals(repoType)) {
+            String dbUrl = System.getenv("DB");
+            if (dbUrl == null || dbUrl.isEmpty()) {
+                System.err.println("where env.DB?");
+                return;
+            }
+            HibernateUtil.getSessionFactory();
+            vehicleRepository = new HibernateVehicleRepository();
+            userRepository = new HibernateUserRepository();
+            rentalRepository = new HibernateRentalRepository();
+            System.out.println("using Hibernate...");
+        } else if ("jdbc".equals(repoType)) {
+            String dbUrl = System.getenv("DB");
+            if (dbUrl == null || dbUrl.isEmpty()) {
+                System.err.println("where env.DB?");
+                return;
+            }
+            DBManager.init(dbUrl);
+            vehicleRepository = new JDBCVehicleRepository();
+            userRepository = new JDBCUserRepository();
+            rentalRepository = new JDBCRentalRepository();
+            System.out.println("using JDBC...");
+        } else {
+            vehicleRepository = new VehicleRepositoryImpl();
+            userRepository = new UserRepositoryImpl();
+            rentalRepository = new RentalRepositoryImpl();
+            System.out.println("using JSON...");
+        }
 
         AuthService authService = new AuthService(userRepository);
         VehicleCategoryConfigService categoryConfigService = new VehicleCategoryConfigService(categoryConfigRepository);

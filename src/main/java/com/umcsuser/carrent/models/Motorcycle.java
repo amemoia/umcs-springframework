@@ -1,7 +1,17 @@
 package com.umcsuser.carrent.models;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
+
+@Entity
+@DiscriminatorValue("MOTORCYCLE")
 public class Motorcycle extends Vehicle {
+    @Transient
     MotorcycleCategory kategoria;
+
+    public Motorcycle() {
+    }
 
     @Override
     public String toCSV() {
@@ -10,11 +20,11 @@ public class Motorcycle extends Vehicle {
 
     @Override
     public Vehicle copy() {
-        return new Motorcycle(id, brand, model, year, price, rented, kategoria);
+        return new Motorcycle(getId(), brand, model, year, price, rented, kategoria);
     }
 
     public Motorcycle(String id, String brand, String model, int year, float price, boolean rented, MotorcycleCategory kategoria) {
-        this.id = id;
+        setId(id);
         this.brand = brand;
         this.model = model;
         this.year = year;

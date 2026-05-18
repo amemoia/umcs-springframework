@@ -68,8 +68,8 @@ public class UI {
             switch (scanner.nextLine().trim()) {
                 case "1" -> vehicleService.findAllVehicles().forEach(v ->
                         System.out.println(v.toString() +
-                                " [Wypożyczony: " + vehicleService.isVehicleRented(v.getId()) + "]"
-                                + "[Wypożyczony: " +rentalService.vehicleHasActiveRental(v.getId()) + "]"));
+                                " [ isRented: " + vehicleService.isVehicleRented(v.getId()) + " ]"
+                                + "[ hasActiveRental: " +rentalService.vehicleHasActiveRental(v.getId()) + " ]"));
                 case "2" -> addVehicle();
                 case "3" -> deleteVehicle();
                 case "4" -> showAllUsers();
@@ -84,14 +84,27 @@ public class UI {
 
     private void userMenu(User loggedUser) {
         while (true) {
+            User updatedUser = userService.findById(loggedUser.getId());
+            boolean hasRental = hasRentedVehicle(updatedUser);
+
             System.out.println("\n=== MENU USERA ===");
-            System.out.println("1. Dostępne pojazdy | 2. Wypożycz | 3. Zwróć | 4. Moje dane | 5. Moja historia | 0. Wyloguj");
+            System.out.print("1. Dostępne pojazdy | ");
+            if (!hasRental) {
+                System.out.print("2. Wypożycz | ");
+            }
+            System.out.println("3. Zwróć | 4. Moje dane | 5. Moja historia | 0. Wyloguj");
 
             switch (scanner.nextLine().trim()) {
                 case "1" -> vehicleService.findAvailableVehicles().forEach(v -> System.out.println(v.toString()));
-                case "2" -> rentVehicle(loggedUser);
-                case "3" -> returnVehicle(loggedUser);
-                case "4" -> showCurrentUserData(loggedUser);
+                case "2" -> {
+                    if (hasRental) {
+                        System.out.println("Masz już wypożyczony pojazd. Najpierw go zwróć.");
+                    } else {
+                        rentVehicle(updatedUser);
+                    }
+                }
+                case "3" -> returnVehicle(updatedUser);
+                case "4" -> showCurrentUserData(updatedUser);
                 case "5" -> {
                     List<Rental> rentals = rentalService.findUserRentals(loggedUser.getId());
                     if (rentals.isEmpty()) System.out.println("Brak historii wypożyczeń.");
@@ -137,7 +150,24 @@ public class UI {
 
     private void deleteVehicle() {
         try {
-            vehicleService.removeVehicle(readText("ID pojazdu do usunięcia: "));
+            List<Vehicle> vehicles = vehicleService.findAllVehicles();
+            if (vehicles.isEmpty()) {
+                System.out.println("Brak pojazdów do usunięcia.");
+                return;
+            }
+
+            System.out.println("=== Lista pojazdów ===");
+            for (int i = 0; i < vehicles.size(); i++) {
+                System.out.println((i + 1) + ". " + vehicles.get(i).toString());
+            }
+
+            int index = readInt("Wybierz numer pojazdu do usunięcia: ") - 1;
+            if (index < 0 || index >= vehicles.size()) {
+                System.out.println("Nieprawidłowy numer.");
+                return;
+            }
+
+            vehicleService.removeVehicle(vehicles.get(index).getId());
             System.out.println("Usunięto pomyślnie.");
         } catch (Exception e) {
             System.out.println("Błąd: " + e.getMessage());
@@ -175,7 +205,29 @@ public class UI {
 
     private void rentVehicle(User loggedUser) {
         try {
-            rentalService.rentVehicle(loggedUser.getId(), readText("ID pojazdu do wypożyczenia: "));
+            if (hasRentedVehicle(loggedUser)) {
+                System.out.println("Masz już wypożyczony pojazd.");
+                return;
+            }
+
+            List<Vehicle> availableVehicles = vehicleService.findAvailableVehicles();
+            if (availableVehicles.isEmpty()) {
+                System.out.println("Brak dostępnych pojazdów do wypożyczenia.");
+                return;
+            }
+
+            System.out.println("=== Dostępne pojazdy ===");
+            for (int i = 0; i < availableVehicles.size(); i++) {
+                System.out.println((i + 1) + ". " + availableVehicles.get(i).toString());
+            }
+
+            int index = readInt("Wybierz numer pojazdu do wypożyczenia: ") - 1;
+            if (index < 0 || index >= availableVehicles.size()) {
+                System.out.println("Nieprawidłowy numer.");
+                return;
+            }
+
+            rentalService.rentVehicle(loggedUser.getId(), availableVehicles.get(index).getId());
             System.out.println("Pojazd został wypożyczony.");
         } catch (Exception e) {
             System.out.println("Błąd: " + e.getMessage());
@@ -199,10 +251,11 @@ public class UI {
             rentalService.findActiveRentalByUserId(u.getId())
                     .ifPresentOrElse(
                             rental -> {
+                                String vehicleId = rental.getVehicle() != null ? rental.getVehicle().getId() : rental.getVehicleId();
                                 try {
-                                    System.out.println("Aktualnie wypożyczony pojazd: " + vehicleService.findById(rental.getVehicleId()));
+                                    System.out.println("Aktualnie wypożyczony pojazd: " + vehicleService.findById(vehicleId));
                                 } catch (Exception e) {
-                                    System.out.println("Aktualnie wypożyczony pojazd: " + rental.getVehicleId() + " (brak szczegółów)");
+                                    System.out.println("Aktualnie wypożyczony pojazd: " + vehicleId + " (brak szczegółów)");
                                 }
                             },
                             () -> System.out.println("Brak aktywnego wypożyczenia.")
@@ -271,17 +324,30 @@ public class UI {
         };
     }
 
+    private boolean hasRentedVehicle(User user) {
+        if (user == null) {
+            return false;
+        }
+        if (user.getRentedVehicle() != null && user.getRentedVehicle().getId() != null) {
+            return !user.getRentedVehicle().getId().isEmpty();
+        }
+        String rentedVehicleId = user.getRentedVehicleId();
+        return rentedVehicleId != null && !rentedVehicleId.isEmpty() && !"null".equalsIgnoreCase(rentedVehicleId);
+    }
+
     private void printRentalDetails(Rental rental) {
         System.out.println(rental);
 
         String login = "nieznany";
+        String userId = rental.getUser() != null ? rental.getUser().getId() : rental.getUserId();
         try {
-            login = userService.findById(rental.getUserId()).getLogin();
+            login = userService.findById(userId).getLogin();
         } catch (Exception ignored) {}
 
         String vehicle = "nieznany";
+        String vehicleId = rental.getVehicle() != null ? rental.getVehicle().getId() : rental.getVehicleId();
         try {
-            vehicle = vehicleService.findById(rental.getVehicleId()).toString();
+            vehicle = vehicleService.findById(vehicleId).toString();
         } catch (Exception ignored) {}
 
         System.out.println("  user: " + login);

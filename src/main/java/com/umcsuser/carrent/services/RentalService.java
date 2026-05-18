@@ -1,23 +1,21 @@
 package com.umcsuser.carrent.services;
 
-import com.umcsuser.carrent.models.User;
 import com.umcsuser.carrent.models.Rental;
+import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.models.Vehicle;
 import com.umcsuser.carrent.repositories.RentalRepository;
 import com.umcsuser.carrent.repositories.UserRepository;
 import com.umcsuser.carrent.repositories.VehicleRepository;
-import com.umcsuser.carrent.models.Vehicle;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-
-public class RentalService {
-    private VehicleRepository vehicleRepository;
-    private RentalRepository rentalRepository;
-    private UserRepository userRepository;
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+public class RentalService implements IRentalService {
+    private final VehicleRepository vehicleRepository;
+    private final RentalRepository rentalRepository;
+    private final UserRepository userRepository;
 
     public RentalService(VehicleRepository vehicleRepository, RentalRepository rentalRepository, UserRepository userRepository) {
         this.vehicleRepository = vehicleRepository;
@@ -25,122 +23,102 @@ public class RentalService {
         this.userRepository = userRepository;
     }
 
-    public List<Rental> getRentals() {
-        return rentalRepository.findAll();
-    }
-
-    public Rental rentVehicle(String userId, String vehicleId) {
-        Vehicle vehicle = vehicleRepository.getVehicle(vehicleId);
-        if (vehicle == null) {
-            System.out.println("Vehicle not found");
-            return null;
-        }
-
-        if (vehicle.isRented()) {
-            System.out.println("Vehicle is already rented");
-            return null;
-        }
-
-        User user = userRepository.getUser(userId);
-        if (user == null) {
-            System.out.println("User not found");
-            return null;
-        }
-
-        if (user.getRentedVehicleId() != null && !user.getRentedVehicleId().isEmpty()) {
-            System.out.println("User already has a rental");
-            return null;
-        }
-
-        vehicle.setRented(true);
-        vehicleRepository.update(vehicle);
-
-        String rentalId = UUID.randomUUID().toString();
-        String rentDateTime = LocalDateTime.now().format(formatter);
-        Rental rental = new Rental(rentalId, vehicleId, userId, rentDateTime, null);
-        rentalRepository.save(rental);
-
-        user.setRentedVehicleId(vehicleId);
-        userRepository.update(user);
-
-        System.out.println("Vehicle rented: " + vehicle);
-        return rental;
-    }
-
+    @Override
     public List<Rental> findAllRentals() {
-        return rentalRepository.findAll();
+        List<Rental> rentals = rentalRepository.findAll();
+        rentals.forEach(this::attachReferences);
+        return rentals;
     }
 
+    @Override
     public List<Rental> findUserRentals(String userId) {
-        return rentalRepository.findAll().stream()
-                .filter(r -> r.getUserId().equals(userId))
+        return findAllRentals().stream()
+                .filter(rental -> userId.equals(rental.getUserId()))
                 .toList();
     }
 
-    public java.util.Optional<Rental> findActiveRentalByUserId(String userId) {
-        return rentalRepository.findAll().stream()
-                .filter(r -> r.getUserId().equals(userId) && r.isActive())
+    @Override
+    public Optional<Rental> findActiveRentalByUserId(String userId) {
+        return findAllRentals().stream()
+                .filter(rental -> userId.equals(rental.getUserId()) && rental.isActive())
                 .findFirst();
     }
 
+    @Override
     public boolean vehicleHasActiveRental(String vehicleId) {
-        return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
+        Optional<Rental> rental = rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId);
+        rental.ifPresent(this::attachReferences);
+        return rental.isPresent();
     }
 
-    public void returnVehicle(String userId) {
-        Rental activeRental = findActiveRentalByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User has no rented vehicle"));
-        
-        returnVehicle(userId, activeRental.getVehicleId());
-    }
-
-    public Rental returnVehicle(String userId, String vehicleId) {
+    @Override
+    public Rental rentVehicle(String userId, String vehicleId) {
+        User user = findUserById(userId);
         Vehicle vehicle = vehicleRepository.getVehicle(vehicleId);
+
         if (vehicle == null) {
-            System.out.println("Vehicle not found");
-            return null;
+            throw new RuntimeException("Vehicle " + vehicleId + " does not exist");
+        }
+        if (vehicle.isRented() || vehicleHasActiveRental(vehicleId)) {
+            throw new RuntimeException("Vehicle is already rented");
+        }
+        if (user.getRentedVehicleId() != null && !user.getRentedVehicleId().isBlank()) {
+            throw new RuntimeException("User already has a rented vehicle");
         }
 
-        if (!vehicle.isRented()) {
-            System.out.println("Vehicle is not rented");
-            return null;
-        }
+        Rental rental = new Rental(UUID.randomUUID().toString(), vehicle, user, LocalDateTime.now(), null);
 
-        User user = userRepository.getUser(userId);
-        if (user == null) {
-            System.out.println("User not found");
-            return null;
-        }
+        vehicle.setRented(true);
+        user.setRentedVehicle(vehicle);
 
-        if (user.getRentedVehicleId() == null || !user.getRentedVehicleId().equals(vehicleId)) {
-            System.out.println("User did not rent this vehicle");
-            return null;
-        }
-
-        vehicle.setRented(false);
         vehicleRepository.update(vehicle);
-
-        Rental rental = rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).orElse(null);
-        if (rental == null) {
-            System.out.println("No active rental found for this vehicle");
-            return null;
-        }
-
-        String returnDateTime = LocalDateTime.now().format(formatter);
-        rental.setReturnDateTime(returnDateTime);
+        userRepository.update(user);
         rentalRepository.save(rental);
 
-        user.setRentedVehicleId(null);
-        userRepository.update(user);
-
-        System.out.println("Vehicle returned: " + vehicle);
         return rental;
     }
 
-    public List<Rental> getActiveRentals() {
-        return rentalRepository.findAll().stream().filter(Rental::isActive).toList();
+    @Override
+    public void returnVehicle(String userId) {
+        User user = findUserById(userId);
+        Rental rental = findActiveRentalByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("No active rental found"));
+
+        rental.setReturnDateTime(LocalDateTime.now());
+
+        Vehicle vehicle = rental.getVehicle();
+        if (vehicle == null && rental.getVehicleId() != null) {
+            vehicle = vehicleRepository.getVehicle(rental.getVehicleId());
+        }
+        if (vehicle != null) {
+            vehicle.setRented(false);
+            vehicleRepository.update(vehicle);
+        }
+
+        user.setRentedVehicle(null);
+        userRepository.update(user);
+        rentalRepository.save(rental);
     }
-    public List<Rental> getRentalsByUser(String userId) {
-        return rentalRepository.findAll().stream().filter(r -> r.getUserId().equals(userId)).toList();
+
+    private User findUserById(String userId) {
+        return userRepository.getUsers().stream()
+                .filter(user -> userId.equals(user.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("User " + userId + " does not exist"));
+    }
+
+    private void attachReferences(Rental rental) {
+        if (rental == null) {
+            return;
+        }
+        if (rental.getVehicle() == null && rental.getVehicleId() != null) {
+            Vehicle vehicle = vehicleRepository.getVehicle(rental.getVehicleId());
+            rental.setVehicle(vehicle);
+        }
+        if (rental.getUser() == null && rental.getUserId() != null) {
+            User user = findUserById(rental.getUserId());
+            rental.setUser(user);
+        }
     }
 }
+

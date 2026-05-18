@@ -1,13 +1,12 @@
 package com.umcsuser.carrent.services;
 
 import com.umcsuser.carrent.models.Vehicle;
-import com.umcsuser.carrent.models.VehicleCategoryConfig;
 import com.umcsuser.carrent.repositories.RentalRepository;
 import com.umcsuser.carrent.repositories.VehicleRepository;
 
 import java.util.List;
 
-public class VehicleService {
+public class VehicleService implements IVehicleService {
     private final VehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;
     private final VehicleValidator vehicleValidator;
@@ -37,10 +36,16 @@ public class VehicleService {
     }
 
     public Vehicle addVehicle(Vehicle vehicle) {
+        vehicleValidator.validate(vehicle);
         return vehicleRepository.add(vehicle);
     }
 
     public void removeVehicle(String id) {
+        Vehicle vehicle = findById(id);
+        if (vehicle.isRented()) {
+            throw new RuntimeException("Cannot delete a vehicle that is currently rented");
+        }
+        rentalRepository.deleteByVehicleId(id);
         if (!vehicleRepository.remove(id)) {
             throw new RuntimeException("Couldnt remove vehicle " + id);
         }
