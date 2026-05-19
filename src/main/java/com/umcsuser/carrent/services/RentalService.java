@@ -79,7 +79,7 @@ public class RentalService implements IRentalService {
     }
 
     @Override
-    public void returnVehicle(String userId) {
+    public Rental returnVehicle(String userId) {
         User user = findUserById(userId);
         Rental rental = findActiveRentalByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No active rental found"));
@@ -97,7 +97,7 @@ public class RentalService implements IRentalService {
 
         user.setRentedVehicle(null);
         userRepository.update(user);
-        rentalRepository.save(rental);
+        return rentalRepository.save(rental);
     }
 
     private User findUserById(String userId) {
@@ -121,4 +121,3 @@ public class RentalService implements IRentalService {
         }
     }
 }
-

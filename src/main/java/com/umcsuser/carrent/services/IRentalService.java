@@ -11,6 +11,5 @@ public interface IRentalService {
     Optional<Rental> findActiveRentalByUserId(String userId);
     boolean vehicleHasActiveRental(String vehicleId);
     Rental rentVehicle(String userId, String vehicleId);
-    void returnVehicle(String userId);
+    Rental returnVehicle(String userId);
 }
-

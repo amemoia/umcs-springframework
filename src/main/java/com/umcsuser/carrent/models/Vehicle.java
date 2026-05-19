@@ -1,5 +1,8 @@
 package com.umcsuser.carrent.models;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -13,6 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category", visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Car.class, name = "CAR"),
+        @JsonSubTypes.Type(value = Motorcycle.class, name = "MOTORCYCLE")
+})
 @Entity
 @Table(name = "vehicles")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -116,6 +124,14 @@ public abstract class Vehicle {
             attributes.put("plate", plate);
         }
         return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
+        Object plateAttr = this.attributes.get("plate");
+        if (plateAttr != null) {
+            this.plate = plateAttr.toString();
+        }
     }
 
     public void addAttribute(String name, Object value) {
