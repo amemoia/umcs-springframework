@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rentals")
+@RequestMapping("/api/rentals")
 public class RentalsController {
     private final RentalService rentalService;
 
@@ -39,4 +39,3 @@ public class RentalsController {
         return rentalService.returnVehicle(userId);
     }
 }
-

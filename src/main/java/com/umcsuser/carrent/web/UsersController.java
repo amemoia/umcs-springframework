@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UsersController {
     private final UserService userService;
 
@@ -28,4 +28,3 @@ public class UsersController {
         return userService.findById(id);
     }
 }
-

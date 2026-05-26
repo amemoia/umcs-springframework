@@ -59,4 +59,3 @@ public final class HibernateUtil {
         SESSION_FACTORY.close();
     }
 }
-

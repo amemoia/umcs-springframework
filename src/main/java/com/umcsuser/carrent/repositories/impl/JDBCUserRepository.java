@@ -2,18 +2,27 @@ package com.umcsuser.carrent.repositories.impl;
 
 import com.umcsuser.carrent.models.User;
 import com.umcsuser.carrent.repositories.UserRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
+@Profile("jdbc")
 public class JDBCUserRepository implements UserRepository {
 
-    public JDBCUserRepository() {
+    private final DataSource dataSource;
+
+    public JDBCUserRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private Connection getConnection() throws SQLException {
-        return com.umcsuser.carrent.DBManager.getInstance().getConnection();
+        return dataSource.getConnection();
     }
 
     @Override

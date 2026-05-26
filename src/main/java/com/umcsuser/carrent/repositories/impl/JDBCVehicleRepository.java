@@ -5,18 +5,26 @@ import com.umcsuser.carrent.models.Motorcycle;
 import com.umcsuser.carrent.models.MotorcycleCategory;
 import com.umcsuser.carrent.models.Vehicle;
 import com.umcsuser.carrent.repositories.VehicleRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
+@Profile("jdbc")
 public class JDBCVehicleRepository implements VehicleRepository {
+    private final DataSource dataSource;
 
-    public JDBCVehicleRepository() {
+    public JDBCVehicleRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private Connection getConnection() throws SQLException {
-        return com.umcsuser.carrent.DBManager.getInstance().getConnection();
+        return dataSource.getConnection();
     }
 
     @Override

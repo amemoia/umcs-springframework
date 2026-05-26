@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 public class CategoriesController {
     private final VehicleCategoryConfigService categoryConfigService;
 
@@ -28,4 +28,3 @@ public class CategoriesController {
         return categoryConfigService.getByCategory(category);
     }
 }
-

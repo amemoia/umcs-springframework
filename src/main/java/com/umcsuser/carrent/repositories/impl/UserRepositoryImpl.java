@@ -3,18 +3,24 @@ package com.umcsuser.carrent.repositories.impl;
 import com.google.gson.*;
 import com.umcsuser.carrent.models.User;
 import com.umcsuser.carrent.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Repository
+@Profile("json")
 public class UserRepositoryImpl implements UserRepository {
-    private Map<String, User> users = new HashMap<>();
-    private File jsonFile = new File("users.json");
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Map<String, User> users = new HashMap<>();
+    private final File jsonFile;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public UserRepositoryImpl() {
+    public UserRepositoryImpl(@Value("${carrent.json.users-file}") String filePath) {
+        this.jsonFile = new File(filePath);
         load();
     }
 

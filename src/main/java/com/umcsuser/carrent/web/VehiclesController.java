@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/api/vehicles")
 public class VehiclesController {
     private final VehicleService vehicleService;
 
@@ -57,4 +57,3 @@ public class VehiclesController {
         return ResponseEntity.noContent().build();
     }
 }
-

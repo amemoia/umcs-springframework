@@ -2,19 +2,27 @@ package com.umcsuser.carrent.repositories.impl;
 
 import com.umcsuser.carrent.models.Rental;
 import com.umcsuser.carrent.repositories.RentalRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
+@Profile("jdbc")
 public class JDBCRentalRepository implements RentalRepository {
+    private final DataSource dataSource;
 
-    public JDBCRentalRepository() {
+    public JDBCRentalRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private Connection getConnection() throws SQLException {
-        return com.umcsuser.carrent.DBManager.getInstance().getConnection();
+        return dataSource.getConnection();
     }
 
     @Override

@@ -3,9 +3,13 @@ package com.umcsuser.carrent.services;
 import com.umcsuser.carrent.models.Vehicle;
 import com.umcsuser.carrent.repositories.RentalRepository;
 import com.umcsuser.carrent.repositories.VehicleRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
+@Transactional
 public class VehicleService implements IVehicleService {
     private final VehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;

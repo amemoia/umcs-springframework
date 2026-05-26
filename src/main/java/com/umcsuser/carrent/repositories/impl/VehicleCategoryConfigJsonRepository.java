@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.umcsuser.carrent.models.VehicleCategoryConfig;
 import com.umcsuser.carrent.repositories.VehicleCategoryConfigRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,15 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class VehicleCategoryConfigJsonRepository implements VehicleCategoryConfigRepository {
     private List<VehicleCategoryConfig> configs = new ArrayList<>();
+    private final String filePath;
 
-    public VehicleCategoryConfigJsonRepository() {
+    public VehicleCategoryConfigJsonRepository(@Value("${carrent.json.categories-file}") String filePath) {
+        this.filePath = filePath;
         load();
     }
 
     private void load() {
-        try (FileReader reader = new FileReader("categories.json")) {
+        try (FileReader reader = new FileReader(filePath)) {
             Type listType = new TypeToken<ArrayList<VehicleCategoryConfig>>() {}.getType();
             configs = new Gson().fromJson(reader, listType);
             if (configs == null) configs = new ArrayList<>();
@@ -39,4 +44,3 @@ public class VehicleCategoryConfigJsonRepository implements VehicleCategoryConfi
         return configs.stream().filter(c -> c.getCategory().equalsIgnoreCase(category)).findFirst();
     }
 }
-

@@ -3,18 +3,24 @@ package com.umcsuser.carrent.repositories.impl;
 import com.google.gson.*;
 import com.umcsuser.carrent.models.Rental;
 import com.umcsuser.carrent.repositories.RentalRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Repository
+@Profile("json")
 public class RentalRepositoryImpl implements RentalRepository {
-    private Map<String, Rental> rentals = new HashMap<>();
-    private File jsonFile = new File("rentals.json");
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Map<String, Rental> rentals = new HashMap<>();
+    private final File jsonFile;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public RentalRepositoryImpl() {
+    public RentalRepositoryImpl(@Value("${carrent.json.rentals-file}") String filePath) {
+        this.jsonFile = new File(filePath);
         load();
     }
 

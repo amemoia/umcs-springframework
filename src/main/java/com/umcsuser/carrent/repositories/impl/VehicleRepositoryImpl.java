@@ -6,18 +6,24 @@ import com.umcsuser.carrent.models.Motorcycle;
 import com.umcsuser.carrent.models.MotorcycleCategory;
 import com.umcsuser.carrent.models.Vehicle;
 import com.umcsuser.carrent.repositories.VehicleRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Repository
+@Profile("json")
 public class VehicleRepositoryImpl implements VehicleRepository {
-    private Map<String, Vehicle> vehicles = new HashMap<>();
-    private File jsonFile = new File("vehicles.json");
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Map<String, Vehicle> vehicles = new HashMap<>();
+    private final File jsonFile;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public VehicleRepositoryImpl() {
+    public VehicleRepositoryImpl(@Value("${carrent.json.vehicles-file}") String filePath) {
+        this.jsonFile = new File(filePath);
         load();
     }
 
