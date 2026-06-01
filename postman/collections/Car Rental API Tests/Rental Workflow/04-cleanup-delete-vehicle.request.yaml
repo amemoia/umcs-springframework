@@ -1,0 +1,27 @@
+$kind: http-request
+name: '04 - Cleanup Delete Workflow Vehicle'
+method: DELETE
+url: '{{baseUrl}}/api/vehicles/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '{{workflowVehicleId}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 204 (No Content)", function () {
+          pm.response.to.have.status(204);
+      });
+
+      pm.test("Response body is empty", function () {
+          pm.expect(pm.response.text().length).to.eql(0);
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      // Clear workflow variable
+      pm.collectionVariables.set('workflowVehicleId', '');
+      console.log('Workflow vehicle deleted and variable cleared.');

@@ -1,0 +1,27 @@
+$kind: http-request
+name: '03 - Return the Vehicle'
+method: POST
+url: '{{baseUrl}}/api/rentals/users/:userId/return'
+order: 3000
+pathVariables:
+  - key: userId
+    value: '{{regularUserId}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a rental object", function () {
+          pm.expect(pm.response.json()).to.be.an('object');
+      });
+
+      pm.test("Return date time is set", function () {
+          pm.expect(pm.response.json().returnDateTime).to.be.a('string');
+      });
+
+      pm.test("Vehicle is no longer rented", function () {
+          pm.expect(pm.response.json().vehicle.rented).to.be.false;
+      });

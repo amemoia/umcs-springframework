@@ -1,0 +1,56 @@
+$kind: http-request
+name: List All Vehicles
+method: GET
+url: '{{baseUrl}}/api/vehicles'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a JSON array", function () {
+          pm.expect(pm.response.json()).to.be.an('array');
+      });
+
+      pm.test("Array is non-empty (seed data exists)", function () {
+          pm.expect(pm.response.json().length).to.be.greaterThan(0);
+      });
+
+      pm.test("Each vehicle has required fields", function () {
+          pm.response.json().forEach(function (v) {
+              pm.expect(v).to.have.property('id');
+              pm.expect(v).to.have.property('brand');
+              pm.expect(v).to.have.property('model');
+              pm.expect(v).to.have.property('year');
+              pm.expect(v).to.have.property('price');
+              pm.expect(v).to.have.property('rented');
+              pm.expect(v).to.have.property('category');
+          });
+      });
+
+      pm.test("Vehicle prices are positive numbers", function () {
+          pm.response.json().forEach(function (v) {
+              pm.expect(v.price).to.be.a('number');
+              pm.expect(v.price).to.be.above(0);
+          });
+      });
+
+      pm.test("Vehicle years are plausible (1900–2100)", function () {
+          pm.response.json().forEach(function (v) {
+              pm.expect(v.year).to.be.above(1900);
+              pm.expect(v.year).to.be.below(2100);
+          });
+      });
+
+      pm.test("Vehicle category values are valid", function () {
+          pm.response.json().forEach(function (v) {
+              pm.expect(['CAR', 'MOTORCYCLE', 'BUS']).to.include(v.category);
+          });
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

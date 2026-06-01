@@ -1,0 +1,27 @@
+$kind: collection
+name: 'Car Rental API Tests'
+description: |-
+  Comprehensive tests for the Car Rental Spring Boot API.
+  Covers: Categories, Users, Vehicles, Rentals, and a full Rental Workflow.
+
+  Collection Variables:
+    - baseUrl: API base URL (default: http://localhost:8080)
+    - knownVehicleId: ID of the pre-seeded Audi A4 vehicle
+    - adminUserId: ID of the admin user
+    - regularUserId: ID of the regular user
+    - workflowVehicleId: Used by Rental Workflow to chain requests
+variables:
+  - key: baseUrl
+    value: 'http://localhost:8080'
+  - key: knownVehicleId
+    value: '65b0cdb4-58c7-419a-97bf-811af7f3fe41'
+  - key: adminUserId
+    value: 'admin'
+  - key: regularUserId
+    value: 'user'
+  - key: workflowVehicleId
+    value: ''
+  - key: createdCarId
+    value: ''
+  - key: createdMotorcycleId
+    value: ''
