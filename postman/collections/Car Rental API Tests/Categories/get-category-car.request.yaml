@@ -3,6 +3,9 @@ name: 'Get Category - Car'
 method: GET
 url: '{{baseUrl}}/api/categories/:category'
 order: 2000
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
 pathVariables:
   - key: category
     value: Car

@@ -1,12 +1,12 @@
 [
   {
-    "id": "admin",
+    "id": "c47afb0c-3c21-484b-88a3-8d7e0af2fb2f",
     "login": "admin",
     "passwordHash": "$2a$10$T2vbMarCQJXGh4VHSIKv9e17goMcKuc0Cf2ZK4AB46uUU.4/IZir2",
     "role": "ADMIN"
   },
   {
-    "id": "user",
+    "id": "15e81a7f-373e-4903-bb76-d0b8bcafced7",
     "login": "user",
     "passwordHash": "$2a$10$z7CqxN5ELHIpYThlt7.ijOrOKO0Un2kKIPudZFmjyaJ36K7PHQLqC",
     "role": "USER"

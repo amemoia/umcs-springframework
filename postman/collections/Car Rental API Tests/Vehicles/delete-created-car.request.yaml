@@ -3,6 +3,9 @@ name: 'Delete Created Car (Cleanup)'
 method: DELETE
 url: '{{baseUrl}}/api/vehicles/:id'
 order: 6000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
 pathVariables:
   - key: id
     value: '{{createdCarId}}'

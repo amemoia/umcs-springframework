@@ -30,6 +30,14 @@ public class UserService implements IUserService {
         return user;
     }
 
+    public User findByLogin(String login) {
+        User user = userRepository.getUser(login);
+        if (user == null) {
+            throw new RuntimeException("User with login " + login + " doesn't exist");
+        }
+        return user;
+    }
+
     public void deleteUser(String userId, String adminId) {
         User admin = findById(adminId);
         if (userRepository.removeUser(userId, admin) <= 0) {

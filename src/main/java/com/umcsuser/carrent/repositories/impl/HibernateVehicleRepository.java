@@ -24,7 +24,7 @@ public class HibernateVehicleRepository extends HibernateRepositorySupport imple
     @Override
     public Vehicle add(Vehicle vehicle) {
         return withTransaction(session -> {
-            Vehicle merged = (Vehicle) session.merge(vehicle);
+            Vehicle merged = session.merge(vehicle);
             return merged;
         });
     }

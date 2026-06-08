@@ -1,11 +1,11 @@
 $kind: http-request
 name: '03 - Return the Vehicle'
 method: POST
-url: '{{baseUrl}}/api/rentals/users/:userId/return'
+url: '{{baseUrl}}/api/rentals/return'
 order: 3000
-pathVariables:
-  - key: userId
-    value: '{{regularUserId}}'
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
 scripts:
   - type: afterResponse
     language: text/javascript

@@ -6,7 +6,6 @@
     "model": "A4",
     "year": 2025,
     "price": 300.0,
-    "rented": false,
-    "plate" : "CRAZY"
+    "rented": false
   }
 ]

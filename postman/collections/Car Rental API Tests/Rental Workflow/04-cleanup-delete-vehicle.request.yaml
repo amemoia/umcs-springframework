@@ -3,6 +3,9 @@ name: '04 - Cleanup Delete Workflow Vehicle'
 method: DELETE
 url: '{{baseUrl}}/api/vehicles/:id'
 order: 4000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
 pathVariables:
   - key: id
     value: '{{workflowVehicleId}}'

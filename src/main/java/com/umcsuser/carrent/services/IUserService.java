@@ -7,6 +7,7 @@ import java.util.List;
 public interface IUserService {
     List<User> findAllUsers();
     User findById(String id);
+    User findByLogin(String login);
     void deleteUser(String userId, String adminId);
 }
 

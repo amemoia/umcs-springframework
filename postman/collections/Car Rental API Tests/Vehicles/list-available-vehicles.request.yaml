@@ -3,6 +3,9 @@ name: 'List Available Vehicles (?available=true)'
 method: GET
 url: '{{baseUrl}}/api/vehicles'
 order: 2000
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
 queryParams:
   - key: available
     value: 'true'

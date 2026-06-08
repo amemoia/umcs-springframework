@@ -49,14 +49,14 @@ public class RentalRepositoryImpl implements RentalRepository {
 
     @Override
     public void deleteByVehicleId(String vehicleId) {
-        rentals.values().removeIf(r -> r.getVehicleId().equals(vehicleId));
+        rentals.values().removeIf(r -> vehicleId != null && vehicleId.equals(r.getVehicleId()));
         saveToFile();
     }
 
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         return rentals.values().stream()
-                .filter(r -> r.getVehicleId().equals(vehicleId) && r.isActive())
+                .filter(r -> vehicleId != null && vehicleId.equals(r.getVehicleId()) && r.isActive())
                 .findFirst();
     }
 

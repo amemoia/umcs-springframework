@@ -3,6 +3,9 @@ name: 'Get Admin User'
 method: GET
 url: '{{baseUrl}}/api/users/:id'
 order: 2000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
 pathVariables:
   - key: id
     value: '{{adminUserId}}'

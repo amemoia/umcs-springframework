@@ -25,7 +25,7 @@ public class HibernateRentalRepository extends HibernateRepositorySupport implem
     @Override
     public Rental save(Rental rental) {
         return withTransaction(session -> {
-            Rental merged = (Rental) session.merge(rental);
+            Rental merged = session.merge(rental);
             return merged;
         });
     }
@@ -51,7 +51,7 @@ public class HibernateRentalRepository extends HibernateRepositorySupport implem
         }
         UUID uuid = UUID.fromString(vehicleId);
         withTransaction((java.util.function.Function<org.hibernate.Session, Integer>) session -> session
-                .createQuery("delete from Rental r where r.vehicle.id = :vehicleId")
+                .createMutationQuery("delete from Rental r where r.vehicle.id = :vehicleId")
                 .setParameter("vehicleId", uuid)
                 .executeUpdate());
     }
@@ -66,7 +66,7 @@ public class HibernateRentalRepository extends HibernateRepositorySupport implem
                 .createQuery("select r from Rental r where r.vehicle.id = :vehicleId and r.returnDateTime is null", Rental.class)
                 .setParameter("vehicleId", uuid)
                 .setMaxResults(1)
-                .uniqueResult());
+                .getSingleResultOrNull());
         return Optional.ofNullable(rental);
     }
 }

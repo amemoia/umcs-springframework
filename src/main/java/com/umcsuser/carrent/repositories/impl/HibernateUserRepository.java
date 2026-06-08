@@ -11,7 +11,7 @@ public class HibernateUserRepository extends HibernateRepositorySupport implemen
         return withSession(session -> session
                 .createQuery("select u from User u where u.login = :login", User.class)
                 .setParameter("login", login)
-                .uniqueResult());
+                .getSingleResultOrNull());
     }
 
     @Override
@@ -22,7 +22,7 @@ public class HibernateUserRepository extends HibernateRepositorySupport implemen
     @Override
     public User update(User user) {
         return withTransaction(session -> {
-            User merged = (User) session.merge(user);
+            User merged = session.merge(user);
             return merged;
         });
     }

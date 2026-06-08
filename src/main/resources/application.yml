@@ -11,3 +11,7 @@ carrent:
     vehicles-file: ${CARENT_VEHICLES_FILE:vehicles.json}
     rentals-file: ${CARENT_RENTALS_FILE:rentals.json}
     categories-file: ${CARENT_CATEGORIES_FILE:categories.json}
+jwt:
+  secret: ${JWT_SECRET:5Sy1-R-Zj7ajgcabswkEttARiS8Q4Vs9IhYCVAt1bQ0}
+  expiration: ${JWT_EXPIRATION:3600000}
+

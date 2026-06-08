@@ -3,6 +3,9 @@ name: List All Categories
 method: GET
 url: '{{baseUrl}}/api/categories'
 order: 1000
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
 scripts:
   - type: afterResponse
     language: text/javascript

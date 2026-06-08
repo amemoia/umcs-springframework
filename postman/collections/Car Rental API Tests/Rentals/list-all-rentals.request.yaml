@@ -3,6 +3,9 @@ name: List All Rentals
 method: GET
 url: '{{baseUrl}}/api/rentals'
 order: 1000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
 scripts:
   - type: afterResponse
     language: text/javascript

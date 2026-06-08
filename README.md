@@ -1,14 +1,14 @@
 ## Endpoints
 
 ### Rentals
-- `GET /api/rentals`
-- `GET /api/rentals/users/{userId}`
-- `POST /api/rentals/users/{userId}/rent/{vehicleId}`
-- `POST /api/rentals/users/{userId}/return`
+- `GET /api/rentals` - admin only
+- `GET /api/rentals/my`
+- `POST /api/rentals/rent`
+- `POST /api/rentals/return`
 
 ### Users
-- `GET /api/users`
-- `GET /api/users/{id}`
+- `GET /api/users` - admin only
+- `GET /api/users/{id}` - admin only
 
 ### Vehicles
 - `GET /api/vehicles?available=false|true`
