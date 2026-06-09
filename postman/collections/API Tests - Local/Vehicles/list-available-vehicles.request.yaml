@@ -1,0 +1,37 @@
+$kind: http-request
+name: 'List Available Vehicles (?available=true)'
+method: GET
+url: '{{baseUrl}}/api/vehicles'
+order: 2000
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+queryParams:
+  - key: available
+    value: 'true'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a JSON array", function () {
+          pm.expect(pm.response.json()).to.be.an('array');
+      });
+
+      pm.test("Every returned vehicle is NOT rented", function () {
+          pm.response.json().forEach(function (v) {
+              pm.expect(v.rented).to.be.false;
+          });
+      });
+
+      pm.test("Known seed vehicle (Audi A4) is in results", function () {
+          const ids = pm.response.json().map(function (v) { return v.id; });
+          pm.expect(ids).to.include(pm.collectionVariables.get('knownVehicleId'));
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

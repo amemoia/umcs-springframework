@@ -1,0 +1,45 @@
+$kind: http-request
+name: 'Get Admin User'
+method: GET
+url: '{{baseUrl}}/api/users/:id'
+order: 2000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
+pathVariables:
+  - key: id
+    value: '{{adminUserId}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a JSON object", function () {
+          pm.expect(pm.response.json()).to.be.an('object');
+      });
+
+      pm.test("User has required fields: id, login, role", function () {
+          const user = pm.response.json();
+          pm.expect(user).to.have.property('id');
+          pm.expect(user).to.have.property('login');
+          pm.expect(user).to.have.property('role');
+      });
+
+      pm.test("ID matches requested adminUserId", function () {
+          pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('adminUserId'));
+      });
+
+      pm.test("Login is 'admin'", function () {
+          pm.expect(pm.response.json().login).to.eql('admin');
+      });
+
+      pm.test("Role is 'ADMIN'", function () {
+          pm.expect(pm.response.json().role).to.eql('ADMIN');
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

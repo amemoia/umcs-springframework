@@ -1,0 +1,11 @@
+$kind: http-request
+url: '{{baseUrl}}/api/auth/login'
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "login": "admin",
+      "password": "admin123"
+    }
+order: 3724831850759008

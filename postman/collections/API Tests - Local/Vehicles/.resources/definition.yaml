@@ -1,0 +1,4 @@
+$kind: folder
+name: Vehicles
+description: Tests for the /api/vehicles endpoints (CRUD)
+order: 3000

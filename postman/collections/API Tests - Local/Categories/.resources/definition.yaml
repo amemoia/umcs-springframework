@@ -1,0 +1,4 @@
+$kind: folder
+name: Categories
+description: Tests for the /api/categories endpoints
+order: 1000

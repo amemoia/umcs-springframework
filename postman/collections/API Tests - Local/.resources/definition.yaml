@@ -1,0 +1,13 @@
+$kind: collection
+name: API Tests - Local
+description: chungus
+variables:
+  baseUrl: http://localhost:8080
+  knownVehicleId: 65b0cdb4-58c7-419a-97bf-811af7f3fe41
+  adminUserId: c47afb0c-3c21-484b-88a3-8d7e0af2fb2f
+  regularUserId: 15e81a7f-373e-4903-bb76-d0b8bcafced7
+  workflowVehicleId: ""
+  createdCarId: ""
+  createdMotorcycleId: ""
+  adminToken: ""
+  userToken: ""

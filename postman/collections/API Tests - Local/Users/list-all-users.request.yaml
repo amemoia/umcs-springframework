@@ -1,0 +1,61 @@
+$kind: http-request
+name: List All Users
+method: GET
+url: '{{baseUrl}}/api/users'
+order: 1000
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a JSON array", function () {
+          pm.expect(pm.response.json()).to.be.an('array');
+      });
+
+      pm.test("Array is non-empty", function () {
+          pm.expect(pm.response.json().length).to.be.greaterThan(0);
+      });
+
+      pm.test("Each user has required fields: id, login, role", function () {
+          pm.response.json().forEach(function (user) {
+              pm.expect(user).to.have.property('id');
+              pm.expect(user).to.have.property('login');
+              pm.expect(user).to.have.property('role');
+          });
+      });
+
+      pm.test("Admin user (login='admin') exists", function () {
+          const logins = pm.response.json().map(function (u) { return u.login; });
+          pm.expect(logins).to.include('admin');
+      });
+
+      pm.test("Regular user (login='user') exists", function () {
+          const logins = pm.response.json().map(function (u) { return u.login; });
+          pm.expect(logins).to.include('user');
+      });
+
+      pm.test("Role values are valid (ADMIN or USER)", function () {
+          pm.response.json().forEach(function (user) {
+              pm.expect(['ADMIN', 'USER']).to.include(user.role);
+          });
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      const users = pm.response.json();
+      const adminUser = users.find(function (u) { return u.login === 'admin'; });
+      if (adminUser) {
+          pm.collectionVariables.set('adminUserId', adminUser.id);
+      }
+      const regularUser = users.find(function (u) { return u.login === 'user'; });
+      if (regularUser) {
+          pm.collectionVariables.set('regularUserId', regularUser.id);
+      }

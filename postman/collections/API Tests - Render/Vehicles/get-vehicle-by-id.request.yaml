@@ -1,0 +1,56 @@
+$kind: http-request
+name: 'Get Vehicle by ID (Seed Audi A4)'
+method: GET
+url: '{{baseUrl}}/api/vehicles/:id'
+order: 3000
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+pathVariables:
+  - key: id
+    value: '{{knownVehicleId}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a JSON object", function () {
+          pm.expect(pm.response.json()).to.be.an('object');
+      });
+
+      pm.test("Returned ID matches requested knownVehicleId", function () {
+          pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('knownVehicleId'));
+      });
+
+      pm.test("Brand is 'Audi'", function () {
+          pm.expect(pm.response.json().brand).to.eql('Audi');
+      });
+
+      pm.test("Model is 'A4'", function () {
+          pm.expect(pm.response.json().model).to.eql('A4');
+      });
+
+      pm.test("Year is 2025", function () {
+          pm.expect(pm.response.json().year).to.eql(2025);
+      });
+
+      pm.test("Category is 'CAR'", function () {
+          pm.expect(pm.response.json().category).to.eql('CAR');
+      });
+
+      pm.test("Price is 300.0", function () {
+          pm.expect(pm.response.json().price).to.be.closeTo(300.0, 0.001);
+      });
+
+      pm.test("Vehicle attributes contain plate 'CRAZY'", function () {
+          const attrs = pm.response.json().attributes;
+          pm.expect(attrs).to.have.property('plate');
+          pm.expect(attrs.plate).to.eql('CRAZY');
+      });
+
+      pm.test("Response time is below 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
