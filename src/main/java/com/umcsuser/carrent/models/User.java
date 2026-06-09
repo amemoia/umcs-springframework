@@ -64,6 +64,18 @@ public class User {
         return login;
     }
 
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public void setId(String id) {
+        this.id = id != null ? UUID.fromString(id) : null;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getPassword() {
         return password;
     }

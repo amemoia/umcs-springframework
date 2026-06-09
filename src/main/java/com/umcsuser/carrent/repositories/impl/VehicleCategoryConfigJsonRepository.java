@@ -30,6 +30,7 @@ public class VehicleCategoryConfigJsonRepository implements VehicleCategoryConfi
             configs = new Gson().fromJson(reader, listType);
             if (configs == null) configs = new ArrayList<>();
         } catch (IOException e) {
+            System.err.println("Error loading categories from " + filePath + ": " + e.getMessage());
             configs = new ArrayList<>();
         }
     }

@@ -1,4 +1,0 @@
-$kind: folder
-name: Rentals
-description: Tests for the /api/rentals read endpoints
-order: 4000

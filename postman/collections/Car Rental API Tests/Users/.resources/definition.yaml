@@ -1,4 +1,0 @@
-$kind: folder
-name: Users
-description: Tests for the /api/users endpoints
-order: 2000

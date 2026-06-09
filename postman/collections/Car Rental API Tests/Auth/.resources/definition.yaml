@@ -1,5 +1,0 @@
-$kind: folder
-name: Auth
-description: |-
-  Authentication requests.
-order: 500
