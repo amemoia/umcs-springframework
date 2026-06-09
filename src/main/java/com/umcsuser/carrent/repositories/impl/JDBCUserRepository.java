@@ -2,6 +2,7 @@ package com.umcsuser.carrent.repositories.impl;
 
 import com.umcsuser.carrent.models.User;
 import com.umcsuser.carrent.repositories.UserRepository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -22,22 +23,31 @@ public class JDBCUserRepository implements UserRepository {
     }
 
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
+    private void releaseConnection(Connection conn) {
+        DataSourceUtils.releaseConnection(conn, dataSource);
     }
 
     @Override
     public User getUser(String login) {
         String sql = "SELECT * FROM users WHERE login = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, login);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToUser(rs);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, login);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToUser(rs);
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return null;
     }
@@ -46,14 +56,19 @@ public class JDBCUserRepository implements UserRepository {
     public List<User> getUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                users.add(mapResultSetToUser(rs));
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return users;
     }
@@ -65,21 +80,26 @@ public class JDBCUserRepository implements UserRepository {
                      "ON CONFLICT (id) DO UPDATE SET " +
                      "login = EXCLUDED.login, password = EXCLUDED.password, " +
                      "role = EXCLUDED.role, rented_vehicle_id = EXCLUDED.rented_vehicle_id";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(user.getId()));
-            pstmt.setString(2, user.getLogin());
-            pstmt.setString(3, user.getPassword());
-            pstmt.setString(4, user.getRole().name());
-            String rvId = user.getRentedVehicleId();
-            if (rvId != null && !rvId.isEmpty() && !"null".equalsIgnoreCase(rvId)) {
-                pstmt.setObject(5, java.util.UUID.fromString(rvId));
-            } else {
-                pstmt.setNull(5, Types.OTHER);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(user.getId()));
+                pstmt.setString(2, user.getLogin());
+                pstmt.setString(3, user.getPassword());
+                pstmt.setString(4, user.getRole().name());
+                String rvId = user.getRentedVehicleId();
+                if (rvId != null && !rvId.isEmpty() && !"null".equalsIgnoreCase(rvId)) {
+                    pstmt.setObject(5, java.util.UUID.fromString(rvId));
+                } else {
+                    pstmt.setNull(5, Types.OTHER);
+                }
+                pstmt.executeUpdate();
             }
-            pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return user;
     }
@@ -120,14 +140,19 @@ public class JDBCUserRepository implements UserRepository {
         }
 
         String sql = "DELETE FROM users WHERE login = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, login);
-            pstmt.executeUpdate();
-            return 0;
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, login);
+                pstmt.executeUpdate();
+                return 0;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return 1;
+        } finally {
+            releaseConnection(conn);
         }
     }
 

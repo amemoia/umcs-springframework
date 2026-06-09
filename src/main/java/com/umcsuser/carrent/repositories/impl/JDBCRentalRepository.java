@@ -2,6 +2,7 @@ package com.umcsuser.carrent.repositories.impl;
 
 import com.umcsuser.carrent.models.Rental;
 import com.umcsuser.carrent.repositories.RentalRepository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -22,21 +23,30 @@ public class JDBCRentalRepository implements RentalRepository {
     }
 
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
+    private void releaseConnection(Connection conn) {
+        DataSourceUtils.releaseConnection(conn, dataSource);
     }
 
     @Override
     public List<Rental> findAll() {
         List<Rental> rentals = new ArrayList<>();
         String sql = "SELECT * FROM rentals";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                rentals.add(mapResultSetToRental(rs));
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    rentals.add(mapResultSetToRental(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return rentals;
     }
@@ -44,16 +54,21 @@ public class JDBCRentalRepository implements RentalRepository {
     @Override
     public Optional<Rental> findById(String id) {
         String sql = "SELECT * FROM rentals WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(id));
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapResultSetToRental(rs));
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(id));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return Optional.of(mapResultSetToRental(rs));
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return Optional.empty();
     }
@@ -65,27 +80,32 @@ public class JDBCRentalRepository implements RentalRepository {
                      "ON CONFLICT (id) DO UPDATE SET " +
                      "vehicle_id = EXCLUDED.vehicle_id, user_id = EXCLUDED.user_id, " +
                      "rent_date_time = EXCLUDED.rent_date_time, return_date_time = EXCLUDED.return_date_time";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(rental.getId()));
-            pstmt.setObject(2, java.util.UUID.fromString(rental.getVehicleId()));
-            pstmt.setObject(3, java.util.UUID.fromString(rental.getUserId()));
-            
-            if (rental.getRentDateTime() != null && !rental.getRentDateTime().isBlank()) {
-                pstmt.setTimestamp(4, Timestamp.valueOf(rental.getRentDateTime()));
-            } else {
-                pstmt.setNull(4, Types.TIMESTAMP);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(rental.getId()));
+                pstmt.setObject(2, java.util.UUID.fromString(rental.getVehicleId()));
+                pstmt.setObject(3, java.util.UUID.fromString(rental.getUserId()));
+                
+                if (rental.getRentDateTime() != null && !rental.getRentDateTime().isBlank()) {
+                    pstmt.setTimestamp(4, Timestamp.valueOf(rental.getRentDateTime()));
+                } else {
+                    pstmt.setNull(4, Types.TIMESTAMP);
+                }
+                
+                if (rental.getReturnDateTime() != null && !rental.getReturnDateTime().isBlank()) {
+                    pstmt.setTimestamp(5, Timestamp.valueOf(rental.getReturnDateTime()));
+                } else {
+                    pstmt.setNull(5, Types.TIMESTAMP);
+                }
+                
+                pstmt.executeUpdate();
             }
-            
-            if (rental.getReturnDateTime() != null && !rental.getReturnDateTime().isBlank()) {
-                pstmt.setTimestamp(5, Timestamp.valueOf(rental.getReturnDateTime()));
-            } else {
-                pstmt.setNull(5, Types.TIMESTAMP);
-            }
-            
-            pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return rental;
     }
@@ -93,40 +113,55 @@ public class JDBCRentalRepository implements RentalRepository {
     @Override
     public void deleteById(String id) {
         String sql = "DELETE FROM rentals WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(id));
-            pstmt.executeUpdate();
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(id));
+                pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
     }
 
     @Override
     public void deleteByVehicleId(String vehicleId) {
         String sql = "DELETE FROM rentals WHERE vehicle_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(vehicleId));
-            pstmt.executeUpdate();
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(vehicleId));
+                pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
     }
 
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         String sql = "SELECT * FROM rentals WHERE vehicle_id = ? AND return_date_time IS NULL";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(vehicleId));
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapResultSetToRental(rs));
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(vehicleId));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return Optional.of(mapResultSetToRental(rs));
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return Optional.empty();
     }

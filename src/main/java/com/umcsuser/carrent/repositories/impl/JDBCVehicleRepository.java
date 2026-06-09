@@ -5,6 +5,7 @@ import com.umcsuser.carrent.models.Motorcycle;
 import com.umcsuser.carrent.models.MotorcycleCategory;
 import com.umcsuser.carrent.models.Vehicle;
 import com.umcsuser.carrent.repositories.VehicleRepository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -24,21 +25,30 @@ public class JDBCVehicleRepository implements VehicleRepository {
     }
 
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
+    private void releaseConnection(Connection conn) {
+        DataSourceUtils.releaseConnection(conn, dataSource);
     }
 
     @Override
     public List<Vehicle> getVehicles() {
         List<Vehicle> vehicles = new ArrayList<>();
         String sql = "SELECT * FROM vehicles";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                vehicles.add(mapResultSetToVehicle(rs));
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    vehicles.add(mapResultSetToVehicle(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return vehicles;
     }
@@ -46,16 +56,21 @@ public class JDBCVehicleRepository implements VehicleRepository {
     @Override
     public Vehicle getVehicle(String id) {
         String sql = "SELECT * FROM vehicles WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(id));
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToVehicle(rs);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(id));
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToVehicle(rs);
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return null;
     }
@@ -67,12 +82,17 @@ public class JDBCVehicleRepository implements VehicleRepository {
                      "ON CONFLICT (id) DO UPDATE SET " +
                      "brand = EXCLUDED.brand, model = EXCLUDED.model, year = EXCLUDED.year, " +
                      "price = EXCLUDED.price, rented = EXCLUDED.rented, category = EXCLUDED.category, plate = EXCLUDED.plate";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            setVehicleParams(pstmt, vehicle);
-            pstmt.executeUpdate();
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                setVehicleParams(pstmt, vehicle);
+                pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            releaseConnection(conn);
         }
         return vehicle;
     }
@@ -85,13 +105,18 @@ public class JDBCVehicleRepository implements VehicleRepository {
     @Override
     public boolean remove(String id) {
         String sql = "DELETE FROM vehicles WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, java.util.UUID.fromString(id));
-            return pstmt.executeUpdate() > 0;
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setObject(1, java.util.UUID.fromString(id));
+                return pstmt.executeUpdate() > 0;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            releaseConnection(conn);
         }
     }
 
