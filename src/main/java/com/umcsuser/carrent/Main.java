@@ -10,6 +10,7 @@ import com.umcsuser.carrent.repositories.impl.VehicleCategoryConfigJsonRepositor
 import com.umcsuser.carrent.repositories.impl.VehicleRepositoryImpl;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.boot.SpringApplication;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import javax.sql.DataSource;
 
@@ -38,7 +39,7 @@ public class Main {
         VehicleRepository vehicleRepository;
         UserRepository userRepository;
         RentalRepository rentalRepository;
-        VehicleCategoryConfigRepository categoryConfigRepository = new VehicleCategoryConfigJsonRepository("categories.json");
+        VehicleCategoryConfigRepository categoryConfigRepository = new VehicleCategoryConfigJsonRepository("categories.json", new DefaultResourceLoader());
 
         if ("hibernate".equals(repoType)) {
             String dbUrl = System.getenv("DB");

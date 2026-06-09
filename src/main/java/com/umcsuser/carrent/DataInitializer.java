@@ -26,8 +26,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        initializeUser("admin", "admin123", Role.ADMIN, "c47afb0c-3c21-484b-88a3-8d7e0af2fb2f");
-        initializeUser("user", "user123", Role.USER, "15e81a7f-373e-4903-bb76-d0b8bcafced7");
+        initializeUser("admin", "admin123", Role.ADMIN, "00000000-0000-0000-0000-000000000001");
+        initializeUser("user", "user123", Role.USER, "a62399e0-940e-4649-abe1-d928397f4d2b");
         initializeVehicle("65b0cdb4-58c7-419a-97bf-811af7f3fe41", "CAR", "Tesla", "Model S", 2022, 500.0f);
     }
 

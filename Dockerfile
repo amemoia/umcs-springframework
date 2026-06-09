@@ -8,6 +8,7 @@ FROM eclipse-temurin:23-jre
 WORKDIR /app
 ARG JAR_FILE=target/umcs-springframework-1.0-SNAPSHOT.jar
 COPY --from=build /app/${JAR_FILE} ./app.jar
+COPY *.json ./
 ENV PORT=8080
 EXPOSE 8080
 CMD ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]
