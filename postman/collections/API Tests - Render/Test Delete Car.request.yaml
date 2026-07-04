@@ -1,0 +1,20 @@
+$kind: http-request
+method: DELETE
+url: "{{baseUrl}}/api/vehicles/:id"
+headers:
+  Authorization: Bearer {{adminToken}}
+pathVariables:
+  id: "{{remoteCreatedCarId}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 204 (No Content)", function () {
+          pm.response.to.have.status(204);
+      });
+
+      pm.test("Response body is empty", function () {
+          pm.expect(pm.response.text().length).to.eql(0);
+      });
+
+      pm.collectionVariables.set('remoteCreatedCarId', '');
+    language: text/javascript

@@ -2,7 +2,7 @@ $kind: http-request
 name: '02 - Rent the Vehicle'
 method: POST
 url: '{{baseUrl}}/api/rentals/rent'
-order: 2000
+order: 810
 headers:
   - key: Content-Type
     value: application/json

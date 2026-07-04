@@ -2,7 +2,7 @@ $kind: http-request
 name: 'User Login'
 method: POST
 url: '{{baseUrl}}/api/auth/login'
-order: 2000
+order: 200
 headers:
   - key: Content-Type
     value: application/json

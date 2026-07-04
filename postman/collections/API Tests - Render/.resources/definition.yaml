@@ -13,3 +13,4 @@ variables:
   userToken: ""
   rentedVehicleId: ""
   rentalId: ""
+  remoteCreatedCarId: ""

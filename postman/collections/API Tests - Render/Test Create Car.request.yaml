@@ -1,0 +1,53 @@
+$kind: http-request
+name: Test Create Car
+method: POST
+url: "{{baseUrl}}/api/vehicles"
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{adminToken}}
+body:
+  type: json
+  content: |-
+    {
+      "category": "CAR",
+      "brand": "Honda",
+      "model": "Chungus",
+      "year": 2024,
+      "price": 175.0,
+      "attributes": {
+        "plate": "CHUNGUS",
+        "fuelType": "Petrol",
+        "numberOfSeats": 5
+      }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has a non-empty id", function () {
+          const id = pm.response.json().id;
+          pm.expect(id).to.be.a('string');
+          pm.expect(id.length).to.be.above(0);
+      });
+
+      pm.test("Category is 'CAR'", function () {
+          pm.expect(pm.response.json().category).to.eql('CAR');
+      });
+
+      pm.test("Brand is 'Honda'", function () {
+          pm.expect(pm.response.json().brand).to.eql('Honda');
+      });
+
+      pm.test("Model is 'Civic'", function () {
+          pm.expect(pm.response.json().model).to.eql('Chungus');
+      });
+
+      pm.test("New vehicle is not rented", function () {
+          pm.expect(pm.response.json().rented).to.be.false;
+      });
+
+      pm.collectionVariables.set('remoteCreatedCarId', pm.response.json().id);
+    language: text/javascript

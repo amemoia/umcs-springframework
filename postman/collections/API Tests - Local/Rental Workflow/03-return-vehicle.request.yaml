@@ -2,7 +2,7 @@ $kind: http-request
 name: '03 - Return the Vehicle'
 method: POST
 url: '{{baseUrl}}/api/rentals/return'
-order: 3000
+order: 820
 headers:
   - key: Authorization
     value: Bearer {{userToken}}

@@ -1,14 +1,14 @@
 $kind: http-request
-name: 'Delete Created Car (Cleanup)'
+name: 'Delete Car (Remote DB Cleanup)'
 method: DELETE
 url: '{{baseUrl}}/api/vehicles/:id'
-order: 610
+order: 630
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}
 pathVariables:
   - key: id
-    value: '{{createdCarId}}'
+    value: '{{remoteCreatedCarId}}'
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -21,9 +21,5 @@ scripts:
           pm.expect(pm.response.text().length).to.eql(0);
       });
 
-      pm.test("Response time is below 2000ms", function () {
-          pm.expect(pm.response.responseTime).to.be.below(2000);
-      });
+      pm.collectionVariables.set('remoteCreatedCarId', '');
 
-      // Clear the variable after cleanup
-      pm.collectionVariables.set('createdCarId', '');

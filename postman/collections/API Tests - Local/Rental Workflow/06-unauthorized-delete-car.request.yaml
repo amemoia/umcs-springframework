@@ -1,0 +1,23 @@
+$kind: http-request
+name: '06 - Unauthorized Delete Car'
+method: DELETE
+url: '{{baseUrl}}/api/vehicles/:id'
+order: 850
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+pathVariables:
+  - key: id
+    value: '{{workflowVehicleId}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 401 or 403", function () {
+          pm.expect([401, 403]).to.include(pm.response.code);
+      });
+
+      pm.test("User token must not be able to delete a vehicle", function () {
+          pm.expect(pm.response.code).to.not.eql(204);
+      });
+

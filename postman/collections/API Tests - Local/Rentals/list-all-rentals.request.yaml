@@ -2,7 +2,7 @@ $kind: http-request
 name: List All Rentals
 method: GET
 url: '{{baseUrl}}/api/rentals'
-order: 1000
+order: 700
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}

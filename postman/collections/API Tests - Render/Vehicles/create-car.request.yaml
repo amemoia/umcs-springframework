@@ -2,7 +2,7 @@ $kind: http-request
 name: 'Create Car (Toyota Corolla)'
 method: POST
 url: '{{baseUrl}}/api/vehicles'
-order: 4000
+order: 600
 headers:
   - key: Content-Type
     value: application/json

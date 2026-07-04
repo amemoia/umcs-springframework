@@ -2,7 +2,7 @@ $kind: http-request
 name: List All Categories
 method: GET
 url: '{{baseUrl}}/api/categories'
-order: 1000
+order: 300
 headers:
   - key: Authorization
     value: Bearer {{userToken}}

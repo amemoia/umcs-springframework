@@ -2,7 +2,7 @@ $kind: http-request
 name: 'Get Admin User'
 method: GET
 url: '{{baseUrl}}/api/users/:id'
-order: 2000
+order: 410
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}

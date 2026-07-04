@@ -2,7 +2,7 @@ $kind: http-request
 name: 'List Available Vehicles (?available=true)'
 method: GET
 url: '{{baseUrl}}/api/vehicles'
-order: 2000
+order: 510
 headers:
   - key: Authorization
     value: Bearer {{userToken}}

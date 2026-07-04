@@ -2,7 +2,7 @@ $kind: http-request
 name: 'Get Vehicle by ID (Seed Audi A4)'
 method: GET
 url: '{{baseUrl}}/api/vehicles/:id'
-order: 3000
+order: 520
 headers:
   - key: Authorization
     value: Bearer {{userToken}}

@@ -2,7 +2,7 @@ $kind: http-request
 name: '01 - Create Workflow Vehicle'
 method: POST
 url: '{{baseUrl}}/api/vehicles'
-order: 1000
+order: 800
 headers:
   - key: Content-Type
     value: application/json

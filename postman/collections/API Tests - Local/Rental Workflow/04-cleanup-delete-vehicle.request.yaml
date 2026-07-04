@@ -2,7 +2,7 @@ $kind: http-request
 name: '04 - Cleanup Delete Workflow Vehicle'
 method: DELETE
 url: '{{baseUrl}}/api/vehicles/:id'
-order: 4000
+order: 830
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}

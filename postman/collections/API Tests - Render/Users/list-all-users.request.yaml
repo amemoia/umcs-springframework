@@ -2,7 +2,7 @@ $kind: http-request
 name: List All Users
 method: GET
 url: '{{baseUrl}}/api/users'
-order: 1000
+order: 400
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}

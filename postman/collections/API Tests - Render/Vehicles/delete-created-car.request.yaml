@@ -2,7 +2,7 @@ $kind: http-request
 name: 'Delete Created Car (Cleanup)'
 method: DELETE
 url: '{{baseUrl}}/api/vehicles/:id'
-order: 6000
+order: 610
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}
