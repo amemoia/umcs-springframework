@@ -1,6 +1,6 @@
-package com.umcsuser.carrent.bookstore.model;
+package com.umcsuser.carrent.models;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,17 +14,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "order_items")
-public class OrderItem {
+@Table(name = "cart_items")
+public class CartItem {
 
     @Id
     @Column(name = "id", columnDefinition = "UUID")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private Order order;
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "book_id", nullable = false)
@@ -33,21 +33,25 @@ public class OrderItem {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal unitPrice;
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public OrderItem() {
+    public CartItem() {
     }
 
-    public OrderItem(Book book, int quantity, BigDecimal unitPrice) {
+    public CartItem(User user, Book book, int quantity) {
         this.id = UUID.randomUUID();
+        this.user = user;
         this.book = book;
         this.quantity = quantity;
-        this.unitPrice = unitPrice;
     }
 
     public String getId() {
         return id != null ? id.toString() : null;
+    }
+
+    public String getUserLogin() {
+        return user != null ? user.getLogin() : null;
     }
 
     public Book getBook() {
@@ -58,11 +62,11 @@ public class OrderItem {
         return quantity;
     }
 
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

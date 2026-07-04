@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.service;
+package com.umcsuser.carrent.services;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -7,14 +7,14 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.umcsuser.carrent.bookstore.model.Book;
-import com.umcsuser.carrent.bookstore.model.CartItem;
-import com.umcsuser.carrent.bookstore.model.Order;
-import com.umcsuser.carrent.bookstore.model.OrderItem;
-import com.umcsuser.carrent.bookstore.model.OrderStatus;
-import com.umcsuser.carrent.bookstore.repository.BookJpaRepository;
-import com.umcsuser.carrent.bookstore.repository.OrderJpaRepository;
+import com.umcsuser.carrent.models.Book;
+import com.umcsuser.carrent.models.CartItem;
+import com.umcsuser.carrent.models.Order;
+import com.umcsuser.carrent.models.OrderItem;
+import com.umcsuser.carrent.models.OrderStatus;
 import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.BookJpaRepository;
+import com.umcsuser.carrent.repositories.OrderJpaRepository;
 import com.umcsuser.carrent.repositories.UserRepository;
 
 @Service

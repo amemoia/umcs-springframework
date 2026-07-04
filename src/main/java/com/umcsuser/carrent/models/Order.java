@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.model;
+package com.umcsuser.carrent.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.umcsuser.carrent.models.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

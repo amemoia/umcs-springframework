@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.model;
+package com.umcsuser.carrent.models;
 
 public enum OrderStatus {
     NEW,

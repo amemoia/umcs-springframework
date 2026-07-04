@@ -1,12 +1,12 @@
-package com.umcsuser.carrent.bookstore.service;
+package com.umcsuser.carrent.services;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.umcsuser.carrent.bookstore.model.Book;
-import com.umcsuser.carrent.bookstore.repository.BookJpaRepository;
+import com.umcsuser.carrent.models.Book;
+import com.umcsuser.carrent.repositories.BookJpaRepository;
 
 @Service
 @Transactional

@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.model;
+package com.umcsuser.carrent.models;
 
 import java.math.BigDecimal;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.web;
+package com.umcsuser.carrent.web;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.umcsuser.carrent.bookstore.model.CartItem;
-import com.umcsuser.carrent.bookstore.service.CartService;
+import com.umcsuser.carrent.models.CartItem;
 import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.services.CartService;
 import com.umcsuser.carrent.services.UserService;
 
 @RestController

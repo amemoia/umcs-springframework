@@ -1,11 +1,11 @@
-package com.umcsuser.carrent.bookstore.service;
+package com.umcsuser.carrent.services;
 
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.umcsuser.carrent.bookstore.model.Order;
-import com.umcsuser.carrent.bookstore.model.PaymentStatus;
+import com.umcsuser.carrent.models.Order;
+import com.umcsuser.carrent.models.PaymentStatus;
 
 @Service
 public class PaymentService {

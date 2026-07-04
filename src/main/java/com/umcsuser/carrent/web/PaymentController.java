@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.web;
+package com.umcsuser.carrent.web;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.umcsuser.carrent.bookstore.model.Order;
-import com.umcsuser.carrent.bookstore.service.OrderService;
-import com.umcsuser.carrent.bookstore.service.PaymentService;
+import com.umcsuser.carrent.models.Order;
+import com.umcsuser.carrent.services.OrderService;
+import com.umcsuser.carrent.services.PaymentService;
 
 @RestController
 @RequestMapping("/api/payments")

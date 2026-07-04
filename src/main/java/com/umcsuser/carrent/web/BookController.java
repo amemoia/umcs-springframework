@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.web;
+package com.umcsuser.carrent.web;
 
 import java.util.List;
 
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.umcsuser.carrent.bookstore.model.Book;
-import com.umcsuser.carrent.bookstore.service.BookService;
+import com.umcsuser.carrent.models.Book;
+import com.umcsuser.carrent.services.BookService;
 
 @RestController
 @RequestMapping("/api/books")

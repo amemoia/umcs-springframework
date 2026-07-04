@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.repository;
+package com.umcsuser.carrent.repositories;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.umcsuser.carrent.bookstore.model.CartItem;
+import com.umcsuser.carrent.models.CartItem;
 
 @Repository
 public interface CartItemJpaRepository extends JpaRepository<CartItem, UUID> {

@@ -5,10 +5,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.umcsuser.carrent.bookstore.model.Book;
-import com.umcsuser.carrent.bookstore.repository.BookJpaRepository;
+import com.umcsuser.carrent.models.Book;
 import com.umcsuser.carrent.models.Role;
 import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.BookJpaRepository;
 import com.umcsuser.carrent.repositories.UserRepository;
 
 @Component

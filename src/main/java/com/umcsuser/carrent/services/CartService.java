@@ -1,4 +1,4 @@
-package com.umcsuser.carrent.bookstore.service;
+package com.umcsuser.carrent.services;
 
 import java.util.List;
 import java.util.UUID;
@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.umcsuser.carrent.bookstore.model.Book;
-import com.umcsuser.carrent.bookstore.model.CartItem;
-import com.umcsuser.carrent.bookstore.repository.BookJpaRepository;
-import com.umcsuser.carrent.bookstore.repository.CartItemJpaRepository;
+import com.umcsuser.carrent.models.Book;
+import com.umcsuser.carrent.models.CartItem;
 import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.BookJpaRepository;
+import com.umcsuser.carrent.repositories.CartItemJpaRepository;
 import com.umcsuser.carrent.repositories.UserRepository;
 
 @Service

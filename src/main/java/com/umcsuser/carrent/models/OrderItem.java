@@ -1,10 +1,9 @@
-package com.umcsuser.carrent.bookstore.model;
+package com.umcsuser.carrent.models;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.umcsuser.carrent.models.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,17 +14,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "cart_items")
-public class CartItem {
+@Table(name = "order_items")
+public class OrderItem {
 
     @Id
     @Column(name = "id", columnDefinition = "UUID")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     @JsonIgnore
-    private User user;
+    private Order order;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "book_id", nullable = false)
@@ -34,40 +33,40 @@ public class CartItem {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal unitPrice;
 
-    public CartItem() {
+    public OrderItem() {
     }
 
-    public CartItem(User user, Book book, int quantity) {
+    public OrderItem(Book book, int quantity, BigDecimal unitPrice) {
         this.id = UUID.randomUUID();
-        this.user = user;
         this.book = book;
         this.quantity = quantity;
+        this.unitPrice = unitPrice;
     }
 
     public String getId() {
         return id != null ? id.toString() : null;
     }
 
-    public String getUserLogin() {
-        return user != null ? user.getLogin() : null;
-    }
-
     public Book getBook() {
         return book;
+    }
+
+    public Order getOrder() {
+        return order;
     }
 
     public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }
