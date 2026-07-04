@@ -1,14 +1,19 @@
 $kind: http-request
-name: 'Delete Car (Remote DB Cleanup)'
+name: 'Remove Book From Cart'
 method: DELETE
-url: '{{baseUrl}}/api/vehicles/:id'
-order: 630
+url: '{{baseUrl}}/api/cart'
 headers:
+  - key: Content-Type
+    value: application/json
   - key: Authorization
-    value: Bearer {{adminToken}}
-pathVariables:
-  - key: id
-    value: '{{remoteCreatedCarId}}'
+    value: Bearer {{userToken}}
+body:
+  type: json
+  content: |-
+    {
+      "bookId": "{{createdBookId}}",
+      "quantity": 1
+    }
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -20,6 +25,4 @@ scripts:
       pm.test("Response body is empty", function () {
           pm.expect(pm.response.text().length).to.eql(0);
       });
-
-      pm.collectionVariables.set('remoteCreatedCarId', '');
 

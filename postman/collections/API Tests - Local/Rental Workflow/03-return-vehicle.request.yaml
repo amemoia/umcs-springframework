@@ -1,7 +1,7 @@
 $kind: http-request
-name: '03 - Return the Vehicle'
+name: '03 - Checkout Order'
 method: POST
-url: '{{baseUrl}}/api/rentals/return'
+url: '{{baseUrl}}/api/orders/checkout'
 order: 820
 headers:
   - key: Authorization
@@ -14,14 +14,15 @@ scripts:
           pm.response.to.have.status(200);
       });
 
-      pm.test("Response is a rental object", function () {
+      pm.test("Response is an order object", function () {
           pm.expect(pm.response.json()).to.be.an('object');
       });
 
-      pm.test("Return date time is set", function () {
-          pm.expect(pm.response.json().returnDateTime).to.be.a('string');
+      pm.test("Order has paymentReference and items", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('paymentReference');
+          pm.expect(response.items.length).to.be.greaterThan(0);
+          pm.expect(response.items[0].book.id).to.eql(pm.collectionVariables.get('workflowBookId'));
       });
 
-      pm.test("Vehicle is no longer rented", function () {
-          pm.expect(pm.response.json().vehicle.rented).to.be.false;
-      });
+      pm.collectionVariables.set('orderId', pm.response.json().id);

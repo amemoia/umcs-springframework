@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'User Register'
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "login": "bookuser",
+      "password": "bookuser123"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201 or 409", function () {
+          pm.expect([201, 409]).to.include(pm.response.code);
+      });

@@ -1,14 +1,14 @@
 $kind: http-request
-name: 'Delete Created Car (Cleanup)'
+name: 'Delete Created Book (Cleanup)'
 method: DELETE
-url: '{{baseUrl}}/api/vehicles/:id'
+url: '{{baseUrl}}/api/books/:id'
 order: 610
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}
 pathVariables:
   - key: id
-    value: '{{createdCarId}}'
+    value: '{{createdBookId}}'
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -25,5 +25,4 @@ scripts:
           pm.expect(pm.response.responseTime).to.be.below(2000);
       });
 
-      // Clear the variable after cleanup
-      pm.collectionVariables.set('createdCarId', '');
+      pm.collectionVariables.set('createdBookId', '');

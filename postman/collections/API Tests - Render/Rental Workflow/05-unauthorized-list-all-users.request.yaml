@@ -1,11 +1,23 @@
 $kind: http-request
-name: '05 - Unauthorized List All Users'
-method: GET
-url: '{{baseUrl}}/api/users'
+name: '05 - Unauthorized Create Book'
+method: POST
+url: '{{baseUrl}}/api/books'
 order: 840
 headers:
+  - key: Content-Type
+    value: application/json
   - key: Authorization
     value: Bearer {{userToken}}
+body:
+  type: json
+  content: |-
+    {
+      "title": "Unauthorized Book",
+      "author": "Test User",
+      "isbn": "9780000000000",
+      "price": 10.0,
+      "stock": 1
+    }
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -14,7 +26,7 @@ scripts:
           pm.expect([401, 403]).to.include(pm.response.code);
       });
 
-      pm.test("User token must not be able to list users", function () {
+      pm.test("User token must not be able to create a book", function () {
           pm.expect(pm.response.code).to.not.eql(200);
       });
 

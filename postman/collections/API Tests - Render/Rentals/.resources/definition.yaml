@@ -1,4 +1,4 @@
 $kind: folder
-name: Rentals
-description: Tests for the /api/rentals read endpoints
+name: Orders
+description: Tests for the /api/orders read endpoints
 order: 4000

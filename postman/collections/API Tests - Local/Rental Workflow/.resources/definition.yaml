@@ -1,7 +1,7 @@
 $kind: folder
-name: Rental Workflow
+name: Book Workflow
 description: |-
-  End-to-end workflow test: create vehicle → rent → return → cleanup.
+  End-to-end workflow test: create book → add to cart → checkout → cleanup.
   Requests must run in order (01 → 02 → 03 → 04).
-  Uses the workflowVehicleId collection variable to chain data between steps.
+  Uses the workflowBookId collection variable to chain data between steps.
 order: 5000

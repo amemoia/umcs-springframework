@@ -1,4 +1,4 @@
 $kind: folder
-name: Categories
-description: Tests for the /api/categories endpoints
+name: Books
+description: Tests for the /api/books browsing endpoints
 order: 1000

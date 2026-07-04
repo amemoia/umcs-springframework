@@ -1,7 +1,7 @@
 $kind: http-request
-name: '01 - Create Workflow Vehicle'
+name: '01 - Create Workflow Book'
 method: POST
-url: '{{baseUrl}}/api/vehicles'
+url: '{{baseUrl}}/api/books'
 order: 800
 headers:
   - key: Content-Type
@@ -12,15 +12,12 @@ body:
   type: json
   content: |-
     {
-      "category": "CAR",
-      "brand": "Ford",
-      "model": "Focus",
-      "year": 2022,
-      "price": 120.0,
-      "attributes": {
-        "plate": "WORKFLOW",
-        "fuelType": "Diesel"
-      }
+      "title": "Domain-Driven Design",
+      "author": "Eric Evans",
+      "isbn": "9780321125217",
+      "price": 189.99,
+      "stock": 4,
+      "description": "Workflow book used in cart/order tests"
     }
 scripts:
   - type: afterResponse
@@ -36,5 +33,4 @@ scripts:
           pm.expect(id.length).to.be.above(0);
       });
 
-      // Store created ID for the workflow
-      pm.collectionVariables.set('workflowVehicleId', pm.response.json().id);
+      pm.collectionVariables.set('workflowBookId', pm.response.json().id);

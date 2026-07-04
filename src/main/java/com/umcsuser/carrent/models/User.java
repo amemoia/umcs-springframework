@@ -1,17 +1,13 @@
 package com.umcsuser.carrent.models;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -30,13 +26,6 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "rented_vehicle_id")
-    private Vehicle rentedVehicle;
-
-    @Transient
-    private String rentedVehicleId;
-
     public User() {
     }
 
@@ -45,15 +34,13 @@ public class User {
         this.login = login;
         this.password = password;
         this.role = Role.fromString(role);
-        this.rentedVehicleId = null;
     }
 
-    public User(String id, String login, String password, String role, String rentedVehicleId) {
+    public User(String id, String login, String password, String role) {
         this.id = id != null ? UUID.fromString(id) : UUID.randomUUID();
         this.login = login;
         this.password = password;
         this.role = Role.fromString(role);
-        this.rentedVehicleId = rentedVehicleId;
     }
 
     public String getId() {
@@ -92,36 +79,8 @@ public class User {
         this.role = Role.fromString(role);
     }
 
-    public Vehicle getRentedVehicle() {
-        return rentedVehicle;
-    }
-
-    public void setRentedVehicle(Vehicle rentedVehicle) {
-        this.rentedVehicle = rentedVehicle;
-        this.rentedVehicleId = rentedVehicle != null ? rentedVehicle.getId() : null;
-    }
-
-    public String getRentedVehicleId() {
-        if (rentedVehicle != null) {
-            return rentedVehicle.getId();
-        }
-        return rentedVehicleId;
-    }
-
-    public void setRentedVehicleId(String vehicleId) {
-        this.rentedVehicleId = vehicleId;
-        if (vehicleId == null || vehicleId.isBlank() || "null".equalsIgnoreCase(vehicleId)) {
-            this.rentedVehicle = null;
-        }
-    }
-
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String toCSV() {
-        String vehicleId = (getRentedVehicleId() == null || getRentedVehicleId().isEmpty()) ? "null" : getRentedVehicleId();
-        return login + ";" + password + ";" + role + ";" + vehicleId;
     }
 
     @Override
@@ -130,7 +89,6 @@ public class User {
                 "login='" + login + '\'' +
                 ", id='" + getId() + '\'' +
                 ", role='" + role + '\'' +
-                ", rentedVehicleId='" + getRentedVehicleId() + '\'' +
                 '}';
     }
 }

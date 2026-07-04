@@ -1,7 +1,7 @@
 $kind: http-request
-name: List All Rentals
+name: List All Orders
 method: GET
-url: '{{baseUrl}}/api/rentals'
+url: '{{baseUrl}}/api/orders'
 order: 700
 headers:
   - key: Authorization
@@ -18,35 +18,16 @@ scripts:
           pm.expect(pm.response.json()).to.be.an('array');
       });
 
-      pm.test("Seed rentals are present", function () {
+      pm.test("Seed orders are present or list is empty in clean DB", function () {
           pm.expect(pm.response.json()).to.be.an('array');
       });
 
-      pm.test("Each rental has required fields: id, vehicle, user, rentDateTime", function () {
-          pm.response.json().forEach(function (r) {
-              pm.expect(r).to.have.property('id');
-              pm.expect(r).to.have.property('vehicle');
-              pm.expect(r).to.have.property('user');
-              pm.expect(r).to.have.property('rentDateTime');
-          });
-      });
-
-      pm.test("Each rental's vehicle has an id", function () {
-          pm.response.json().forEach(function (r) {
-              pm.expect(r.vehicle).to.have.property('id');
-          });
-      });
-
-      pm.test("Each rental's user has an id", function () {
-          pm.response.json().forEach(function (r) {
-              pm.expect(r.user).to.have.property('id');
-          });
-      });
-
-      pm.test("rentDateTime is a non-empty string", function () {
-          pm.response.json().forEach(function (r) {
-              pm.expect(r.rentDateTime).to.be.a('string');
-              pm.expect(r.rentDateTime.length).to.be.above(0);
+      pm.test("Each order has required fields", function () {
+          pm.response.json().forEach(function (order) {
+              pm.expect(order).to.have.property('id');
+              pm.expect(order).to.have.property('items');
+              pm.expect(order).to.have.property('status');
+              pm.expect(order).to.have.property('paymentStatus');
           });
       });
 

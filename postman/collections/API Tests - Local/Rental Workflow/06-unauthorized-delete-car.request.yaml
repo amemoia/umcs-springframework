@@ -1,14 +1,14 @@
 $kind: http-request
-name: '06 - Unauthorized Delete Car'
+name: '06 - Unauthorized Delete Book'
 method: DELETE
-url: '{{baseUrl}}/api/vehicles/:id'
+url: '{{baseUrl}}/api/books/:id'
 order: 850
 headers:
   - key: Authorization
     value: Bearer {{userToken}}
 pathVariables:
   - key: id
-    value: '{{workflowVehicleId}}'
+    value: '{{workflowBookId}}'
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -17,7 +17,7 @@ scripts:
           pm.expect([401, 403]).to.include(pm.response.code);
       });
 
-      pm.test("User token must not be able to delete a vehicle", function () {
+      pm.test("User token must not be able to delete a book", function () {
           pm.expect(pm.response.code).to.not.eql(204);
       });
 

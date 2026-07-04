@@ -1,0 +1,33 @@
+$kind: http-request
+name: 'Add Book To Cart'
+method: POST
+url: '{{baseUrl}}/api/cart'
+order: 625
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: Bearer {{userToken}}
+body:
+  type: json
+  content: |-
+    {
+      "bookId": "{{createdBookId}}",
+      "quantity": 1
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Cart item contains the created book", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('id');
+          pm.expect(response.quantity).to.eql(1);
+          pm.expect(response.book.id).to.eql(pm.collectionVariables.get('createdBookId'));
+      });
+
+      pm.collectionVariables.set('cartItemId', pm.response.json().id);

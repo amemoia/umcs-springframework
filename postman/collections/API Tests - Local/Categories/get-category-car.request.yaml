@@ -1,14 +1,14 @@
 $kind: http-request
-name: 'Get Category - Car'
+name: 'Get Book By Id'
 method: GET
-url: '{{baseUrl}}/api/categories/:category'
+url: '{{baseUrl}}/api/books/:id'
 order: 310
 headers:
   - key: Authorization
     value: Bearer {{userToken}}
 pathVariables:
-  - key: category
-    value: Car
+  - key: id
+    value: '{{knownBookId}}'
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -21,16 +21,13 @@ scripts:
           pm.expect(pm.response.json()).to.be.an('object');
       });
 
-      pm.test("Category field is 'Car'", function () {
-          pm.expect(pm.response.json().category).to.eql('Car');
+      pm.test("Returned ID matches requested knownBookId", function () {
+          pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('knownBookId'));
       });
 
-      pm.test("Has 'attributes' field", function () {
-          pm.expect(pm.response.json()).to.have.property('attributes');
-      });
-
-      pm.test("Car attributes include 'fuelType'", function () {
-          pm.expect(pm.response.json().attributes).to.have.property('fuelType');
+      pm.test("Book response exposes title and author", function () {
+          pm.expect(pm.response.json()).to.have.property('title');
+          pm.expect(pm.response.json()).to.have.property('author');
       });
 
       pm.test("Response time is below 2000ms", function () {

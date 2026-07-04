@@ -1,7 +1,7 @@
 $kind: http-request
-name: 'Create Car (Toyota Corolla)'
+name: 'Create Book (Clean Architecture)'
 method: POST
-url: '{{baseUrl}}/api/vehicles'
+url: '{{baseUrl}}/api/books'
 order: 600
 headers:
   - key: Content-Type
@@ -12,16 +12,12 @@ body:
   type: json
   content: |-
     {
-      "category": "CAR",
-      "brand": "Toyota",
-      "model": "Corolla",
-      "year": 2023,
-      "price": 150.0,
-      "attributes": {
-        "plate": "TEST01",
-        "fuelType": "Petrol",
-        "numberOfSeats": 5
-      }
+      "title": "Clean Architecture",
+      "author": "Robert C. Martin",
+      "isbn": "9780134494166",
+      "price": 159.99,
+      "stock": 7,
+      "description": "Test book created by admin"
     }
 scripts:
   - type: afterResponse
@@ -37,29 +33,11 @@ scripts:
           pm.expect(id.length).to.be.above(0);
       });
 
-      pm.test("Category is 'CAR'", function () {
-          pm.expect(pm.response.json().category).to.eql('CAR');
+      pm.test("Book fields match payload", function () {
+          const response = pm.response.json();
+          pm.expect(response.title).to.eql('Clean Architecture');
+          pm.expect(response.author).to.eql('Robert C. Martin');
+          pm.expect(response.stock).to.eql(7);
       });
 
-      pm.test("Brand is 'Toyota'", function () {
-          pm.expect(pm.response.json().brand).to.eql('Toyota');
-      });
-
-      pm.test("Model is 'Corolla'", function () {
-          pm.expect(pm.response.json().model).to.eql('Corolla');
-      });
-
-      pm.test("Year is 2023", function () {
-          pm.expect(pm.response.json().year).to.eql(2023);
-      });
-
-      pm.test("Price is 150.0", function () {
-          pm.expect(pm.response.json().price).to.be.closeTo(150.0, 0.001);
-      });
-
-      pm.test("New vehicle is not rented", function () {
-          pm.expect(pm.response.json().rented).to.be.false;
-      });
-
-      // Store created ID for the delete cleanup request below
-      pm.collectionVariables.set('createdCarId', pm.response.json().id);
+      pm.collectionVariables.set('createdBookId', pm.response.json().id);

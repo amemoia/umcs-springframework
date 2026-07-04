@@ -1,12 +1,16 @@
 $kind: http-request
+name: 'Delete Created Book (Cleanup)'
 method: DELETE
-url: "{{baseUrl}}/api/vehicles/:id"
+url: '{{baseUrl}}/api/books/:id'
 headers:
-  Authorization: Bearer {{adminToken}}
+  - key: Authorization
+    value: Bearer {{adminToken}}
 pathVariables:
-  id: "{{remoteCreatedCarId}}"
+  - key: id
+    value: '{{createdBookId}}'
 scripts:
   - type: afterResponse
+    language: text/javascript
     code: |-
       pm.test("Status code is 204 (No Content)", function () {
           pm.response.to.have.status(204);
@@ -16,5 +20,4 @@ scripts:
           pm.expect(pm.response.text().length).to.eql(0);
       });
 
-      pm.collectionVariables.set('remoteCreatedCarId', '');
-    language: text/javascript
+      pm.collectionVariables.set('createdBookId', '');

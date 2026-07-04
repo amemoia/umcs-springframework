@@ -1,14 +1,14 @@
 $kind: http-request
-name: '04 - Cleanup Delete Workflow Vehicle'
+name: '04 - Cleanup Delete Workflow Book'
 method: DELETE
-url: '{{baseUrl}}/api/vehicles/:id'
+url: '{{baseUrl}}/api/books/:id'
 order: 830
 headers:
   - key: Authorization
     value: Bearer {{adminToken}}
 pathVariables:
   - key: id
-    value: '{{workflowVehicleId}}'
+    value: '{{workflowBookId}}'
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -25,6 +25,4 @@ scripts:
           pm.expect(pm.response.responseTime).to.be.below(2000);
       });
 
-      // Clear workflow variable
-      pm.collectionVariables.set('workflowVehicleId', '');
-      console.log('Workflow vehicle deleted and variable cleared.');
+      pm.collectionVariables.set('workflowBookId', '');

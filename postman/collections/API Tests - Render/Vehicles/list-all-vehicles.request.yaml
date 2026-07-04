@@ -1,7 +1,7 @@
 $kind: http-request
-name: List All Vehicles
+name: List All Books
 method: GET
-url: '{{baseUrl}}/api/vehicles'
+url: '{{baseUrl}}/api/books'
 order: 500
 headers:
   - key: Authorization
@@ -22,35 +22,27 @@ scripts:
           pm.expect(pm.response.json().length).to.be.greaterThan(0);
       });
 
-      pm.test("Each vehicle has required fields", function () {
-          pm.response.json().forEach(function (v) {
-              pm.expect(v).to.have.property('id');
-              pm.expect(v).to.have.property('brand');
-              pm.expect(v).to.have.property('model');
-              pm.expect(v).to.have.property('year');
-              pm.expect(v).to.have.property('price');
-              pm.expect(v).to.have.property('rented');
-              pm.expect(v).to.have.property('category');
+      pm.test("Each book has required fields", function () {
+          pm.response.json().forEach(function (book) {
+              pm.expect(book).to.have.property('id');
+              pm.expect(book).to.have.property('title');
+              pm.expect(book).to.have.property('author');
+              pm.expect(book).to.have.property('isbn');
+              pm.expect(book).to.have.property('price');
+              pm.expect(book).to.have.property('stock');
           });
       });
 
-      pm.test("Vehicle prices are positive numbers", function () {
-          pm.response.json().forEach(function (v) {
-              pm.expect(v.price).to.be.a('number');
-              pm.expect(v.price).to.be.above(0);
+      pm.test("Book prices are positive numbers", function () {
+          pm.response.json().forEach(function (book) {
+              pm.expect(book.price).to.be.a('number');
+              pm.expect(book.price).to.be.above(0);
           });
       });
 
-      pm.test("Vehicle years are plausible (1900–2100)", function () {
-          pm.response.json().forEach(function (v) {
-              pm.expect(v.year).to.be.above(1900);
-              pm.expect(v.year).to.be.below(2100);
-          });
-      });
-
-      pm.test("Vehicle category values are valid", function () {
-          pm.response.json().forEach(function (v) {
-              pm.expect(['CAR', 'MOTORCYCLE', 'BUS']).to.include(v.category);
+      pm.test("Book stock values are non-negative", function () {
+          pm.response.json().forEach(function (book) {
+              pm.expect(book.stock).to.be.at.least(0);
           });
       });
 
