@@ -4,8 +4,6 @@ method: GET
 url: '{{baseUrl}}/api/books/:id'
 order: 520
 headers:
-  - key: Authorization
-    value: Bearer {{userToken}}
 pathVariables:
   - key: id
     value: '{{knownBookId}}'

@@ -1,0 +1,23 @@
+$kind: http-request
+name: '03 - Admin View User Cart'
+method: GET
+url: '{{baseUrl}}/api/cart/user'
+order: 626
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Admin can read another user's cart", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.be.an('array');
+          pm.expect(response.length).to.be.greaterThan(0);
+          pm.expect(response[0].userLogin).to.eql('user');
+          pm.expect(response[0].book.id).to.eql(pm.collectionVariables.get('cartBookId'));
+      });

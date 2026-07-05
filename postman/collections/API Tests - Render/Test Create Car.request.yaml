@@ -1,5 +1,4 @@
 $kind: http-request
-$kind: http-request
 name: 'Create Book (Clean Architecture)'
 method: POST
 url: '{{baseUrl}}/api/books'

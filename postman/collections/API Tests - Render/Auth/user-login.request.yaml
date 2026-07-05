@@ -22,3 +22,4 @@ scripts:
       });
       const token = pm.response.json().token;
       pm.collectionVariables.set("userToken", token);
+      pm.collectionVariables.set("cartToken", token);

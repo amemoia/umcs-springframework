@@ -1,0 +1,19 @@
+$kind: http-request
+name: '04 - Verify Order Is Paid'
+method: GET
+url: '{{baseUrl}}/api/orders/{{orderId}}'
+order: 4540
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Order is marked as paid after webhook", function () {
+          const response = pm.response.json();
+          pm.expect(response.id).to.eql(pm.collectionVariables.get('orderId'));
+          pm.expect(response.paymentStatus).to.eql('PAID');
+          pm.expect(response.status).to.eql('PAID');
+      });

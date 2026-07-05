@@ -1,0 +1,63 @@
+$kind: http-request
+name: '03 - Stripe Webhook Completed'
+method: POST
+url: '{{baseUrl}}/api/payments/webhook'
+order: 4530
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Stripe-Signature
+    value: '{{stripeWebhookSignature}}'
+body:
+  type: json
+  content: |-
+    {{stripeWebhookBody}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const stripeWebhookSecret = pm.collectionVariables.get('stripeWebhookSecret');
+      const orderId = pm.collectionVariables.get('orderId');
+      const paymentSessionId = pm.collectionVariables.get('paymentSessionId');
+
+      if (!stripeWebhookSecret) {
+          throw new Error('Set stripeWebhookSecret in the collection variables before running the webhook test.');
+      }
+
+      const payloadObject = {
+          id: `evt_${Date.now()}`,
+          object: 'event',
+          api_version: '2024-06-20',
+          created: Math.floor(Date.now() / 1000),
+          type: 'checkout.session.completed',
+          data: {
+              object: {
+                  id: paymentSessionId,
+                  object: 'checkout.session',
+                  client_reference_id: orderId,
+                  metadata: {
+                      orderId: orderId
+                  },
+                  status: 'complete',
+                  amount_total: 0,
+                  currency: 'pln'
+              }
+          }
+      };
+
+      const payload = JSON.stringify(payloadObject);
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const signature = CryptoJS.HmacSHA256(`${timestamp}.${payload}`, stripeWebhookSecret).toString(CryptoJS.enc.Hex);
+
+      pm.collectionVariables.set('stripeWebhookBody', payload);
+      pm.collectionVariables.set('stripeWebhookSignature', `t=${timestamp},v1=${signature}`);
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Webhook responds with ok", function () {
+          pm.expect(pm.response.text()).to.eql('ok');
+      });

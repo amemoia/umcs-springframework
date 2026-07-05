@@ -21,8 +21,12 @@ scripts:
       pm.test("Order has paymentReference and items", function () {
           const response = pm.response.json();
           pm.expect(response).to.have.property('paymentReference');
+          pm.expect(response.paymentReference).to.match(/^cs_/);
+          pm.expect(response.paymentStatus).to.eql('PENDING');
           pm.expect(response.items.length).to.be.greaterThan(0);
           pm.expect(response.items[0].book.id).to.eql(pm.collectionVariables.get('workflowBookId'));
       });
 
+      pm.collectionVariables.set('paymentSessionId', pm.response.json().paymentReference);
+      pm.collectionVariables.set('paymentSessionStatus', pm.response.json().paymentStatus);
       pm.collectionVariables.set('orderId', pm.response.json().id);

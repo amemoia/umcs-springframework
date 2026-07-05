@@ -12,10 +12,46 @@ body:
   type: json
   content: |-
     {
-      "bookId": "{{workflowBookId}}",
+      "bookId": "{{cartBookId}}",
       "quantity": 2
     }
 scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const cartBookId = pm.collectionVariables.get('workflowBookId') || pm.collectionVariables.get('createdBookId') || pm.collectionVariables.get('knownBookId');
+      pm.collectionVariables.set('cartBookId', cartBookId);
+
+      const userToken = pm.collectionVariables.get('userToken');
+
+      if (!userToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: {
+                      mode: 'raw',
+                      raw: JSON.stringify({
+                          login: 'user',
+                          password: 'user123'
+                      })
+                  }
+              }, (error, response) => {
+                  if (error) {
+                      reject(error);
+                      return;
+                  }
+
+                  const token = response.json().token;
+                  pm.collectionVariables.set('userToken', token);
+                  pm.collectionVariables.set('cartToken', token);
+                  resolve();
+              });
+          });
+      }
   - type: afterResponse
     language: text/javascript
     code: |-
@@ -27,7 +63,7 @@ scripts:
           const response = pm.response.json();
           pm.expect(response).to.have.property('id');
           pm.expect(response.quantity).to.eql(2);
-          pm.expect(response.book.id).to.eql(pm.collectionVariables.get('workflowBookId'));
+          pm.expect(response.book.id).to.eql(pm.collectionVariables.get('cartBookId'));
       });
 
       pm.collectionVariables.set('cartItemId', pm.response.json().id);

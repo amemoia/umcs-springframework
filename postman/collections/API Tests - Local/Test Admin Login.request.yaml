@@ -18,4 +18,4 @@ scripts:
       });
       const token = pm.response.json().token;
       pm.collectionVariables.set("adminToken", token);
-order: 3724831850759008
+order: 2778180348807035

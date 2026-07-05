@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/orders/my").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/orders/checkout").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/orders/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/payments/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/payments/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
                 .anyRequest().authenticated()

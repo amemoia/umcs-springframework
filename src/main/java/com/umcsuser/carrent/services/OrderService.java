@@ -68,14 +68,13 @@ public class OrderService {
         }
 
         order.setTotalAmount(total);
-
-        PaymentService.PaymentResult paymentResult = paymentService.createCheckoutSession(order);
-        order.setPaymentReference(paymentResult.paymentReference());
-        order.setPaymentStatus(paymentResult.status());
-
         Order saved = orderJpaRepository.save(order);
+        PaymentService.PaymentSession paymentSession = paymentService.createCheckoutSession(saved);
+        saved.setPaymentReference(paymentSession.sessionId());
+        saved.setPaymentStatus(paymentSession.paymentStatus());
+        Order persisted = orderJpaRepository.save(saved);
         cartService.clearCart(login);
-        return saved;
+        return persisted;
     }
 
     public Order updateStatus(String orderId, OrderStatus status) {
