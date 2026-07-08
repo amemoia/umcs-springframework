@@ -1,0 +1,13 @@
+$kind: http-request
+name: '05 - Unauthorized List All Users'
+method: GET
+url: '{{baseUrl}}/api/users'
+order: 840
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 401 or 403", function () {
+          pm.expect([401, 403]).to.include(pm.response.code);
+      });
+

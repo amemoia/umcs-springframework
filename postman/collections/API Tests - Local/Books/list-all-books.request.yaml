@@ -1,12 +1,14 @@
 $kind: http-request
 name: List All Books
 method: GET
-url: "{{baseUrl}}/api/books"
-order: 300
+url: '{{baseUrl}}/api/books'
+order: 500
 headers:
-  Authorization: Bearer {{userToken}}
+  - key: Authorization
+    value: Bearer {{userToken}}
 scripts:
   - type: afterResponse
+    language: text/javascript
     code: |-
       pm.test("Status code is 200", function () {
           pm.response.to.have.status(200);
@@ -16,7 +18,7 @@ scripts:
           pm.expect(pm.response.json()).to.be.an('array');
       });
 
-      pm.test("Array is non-empty", function () {
+      pm.test("Array is non-empty (seed data exists)", function () {
           pm.expect(pm.response.json().length).to.be.greaterThan(0);
       });
 
@@ -31,12 +33,20 @@ scripts:
           });
       });
 
-      pm.test("Known demo books are present", function () {
-          const titles = pm.response.json().map(function (book) { return book.title; });
-          pm.expect(titles).to.include.members(['Chungus Adventure 1', 'Legend of Solid Chungus']);
+      pm.test("Book prices are positive numbers", function () {
+          pm.response.json().forEach(function (book) {
+              pm.expect(book.price).to.be.a('number');
+              pm.expect(book.price).to.be.above(0);
+          });
+      });
+
+      pm.test("Book stock values are non-negative", function () {
+          pm.response.json().forEach(function (book) {
+              pm.expect(book.stock).to.be.at.least(0);
+          });
       });
 
       pm.test("Response time is below 2000ms", function () {
           pm.expect(pm.response.responseTime).to.be.below(2000);
       });
-    language: text/javascript
+

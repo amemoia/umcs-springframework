@@ -3,6 +3,8 @@
 ### Authentication
 - `POST /api/auth/login`
 - `POST /api/auth/register`
+- `GET /api/users` - admin only
+
 
 ### Books
 - `GET /api/books`
@@ -37,12 +39,8 @@
 - `STRIPE_CANCEL_URL` - optional cancel redirect
 - `STRIPE_CURRENCY` - defaults to `pln`
 
-
-## OLD CAR RENT STUFF BELOW
-- `GET /api/users` - admin only
-- `GET /api/rentals` - admin only
-- `GET /api/categories`
-- `GET /api/categories/{category}`
+### CLI mode
+Set `APP_PROFILE=cli`
 
 ## Profiles
 Default profile is `jpa`. Set `APP_PROFILE` to switch:
@@ -66,5 +64,5 @@ Default demo users:
 
 Default demo books:
 
-- `Clean Code`
-- `Effective Java`
+- `Chungus Adventure 1`
+- `Legend of Solid Chungus`

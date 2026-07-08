@@ -1,4 +1,0 @@
-$kind: folder
-name: Orders
-description: Tests for the /api/orders read endpoints
-order: 4000

@@ -18,6 +18,13 @@ body:
       "status": "SHIPPED"
     }
 scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const orderId = pm.collectionVariables.get('orderId');
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Ensure you have an order to update before running this request.');
+      }
   - type: afterResponse
     language: text/javascript
     code: |-

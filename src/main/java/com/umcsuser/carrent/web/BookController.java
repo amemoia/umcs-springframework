@@ -2,6 +2,7 @@ package com.umcsuser.carrent.web;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,7 @@ import com.umcsuser.carrent.models.Book;
 import com.umcsuser.carrent.services.BookService;
 
 @RestController
+@Profile("!cli")
 @RequestMapping("/api/books")
 public class BookController {
 

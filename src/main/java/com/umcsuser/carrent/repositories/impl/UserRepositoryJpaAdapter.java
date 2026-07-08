@@ -10,7 +10,7 @@ import com.umcsuser.carrent.repositories.UserRepository;
 import com.umcsuser.carrent.repositories.jpa.UserJpaRepository;
 
 @Repository
-@Profile("jpa")
+@Profile({"jpa", "cli"})
 public class UserRepositoryJpaAdapter implements UserRepository {
     private final UserJpaRepository delegate;
 

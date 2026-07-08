@@ -24,16 +24,16 @@ public class DataInitializer implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        initializeUser("admin", "admin123", Role.ADMIN, "00000000-0000-0000-0000-000000000001");
-        initializeUser("user", "user123", Role.USER, "a62399e0-940e-4649-abe1-d928397f4d2b");
-        BookJpaRepository bookJpaRepository = bookJpaRepositoryProvider.getIfAvailable();
-        if (bookJpaRepository != null) {
-            initializeBook(bookJpaRepository, "11111111-1111-1111-1111-111111111111", "Clean Code", "Robert C. Martin", "9780132350884", 149.99, 12);
-            initializeBook(bookJpaRepository, "22222222-2222-2222-2222-222222222222", "Effective Java", "Joshua Bloch", "9780134685991", 169.99, 8);
-        }
-    }
+     @Override
+     public void run(String... args) throws Exception {
+         initializeUser("admin", "admin123", Role.ADMIN, "00000000-0000-0000-0000-000000000001");
+         initializeUser("user", "user123", Role.USER, "a62399e0-940e-4649-abe1-d928397f4d2b");
+         BookJpaRepository bookJpaRepository = bookJpaRepositoryProvider.getIfAvailable();
+         if (bookJpaRepository != null) {
+             initializeBook(bookJpaRepository, "11111111-1111-1111-1111-111111111111", "Chungus Adventure 1", "the chungusfather", "1111111111111", 167.77, 12);
+             initializeBook(bookJpaRepository, "22222222-2222-2222-2222-222222222222", "Legend of Solid Chungus", "buh", "2222222222222", 169.99, 8);
+         }
+     }
 
     private void initializeUser(String login, String password, Role role, String id) {
         if (userRepository.getUser(login) == null) {

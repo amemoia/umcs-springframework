@@ -2,8 +2,34 @@ $kind: http-request
 name: '04 - Verify Order Is Paid'
 method: GET
 url: '{{baseUrl}}/api/orders/{{orderId}}'
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
 order: 4540
 scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const userToken = pm.collectionVariables.get('userToken');
+      const orderId = pm.collectionVariables.get('orderId');
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Ensure the checkout/order creation step was executed.');
+      }
+      if (!userToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: { 'Content-Type': 'application/json' },
+                  body: { mode: 'raw', raw: JSON.stringify({ login: 'user', password: 'user123' }) }
+              }, (err, resp) => {
+                  if (err) { reject(err); return; }
+                  const token = resp.json().token;
+                  pm.collectionVariables.set('userToken', token);
+                  resolve();
+              });
+          });
+      }
   - type: afterResponse
     language: text/javascript
     code: |-

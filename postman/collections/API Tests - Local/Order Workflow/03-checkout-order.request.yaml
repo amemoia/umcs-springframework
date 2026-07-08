@@ -1,20 +1,16 @@
 $kind: http-request
-name: '04 - Verify Order Is Paid'
-method: GET
-url: '{{baseUrl}}/api/orders/{{orderId}}'
+name: '03 - Checkout Order'
+method: POST
+url: '{{baseUrl}}/api/orders/checkout'
+order: 820
 headers:
   - key: Authorization
     value: Bearer {{userToken}}
-order: 4540
 scripts:
   - type: beforeRequest
     language: text/javascript
     code: |-
       const userToken = pm.collectionVariables.get('userToken');
-      const orderId = pm.collectionVariables.get('orderId');
-      if (!orderId) {
-          throw new Error('Missing collection variable: orderId. Ensure the checkout/order creation step was executed.');
-      }
       if (!userToken) {
           await new Promise((resolve, reject) => {
               pm.sendRequest({
@@ -28,8 +24,8 @@ scripts:
                   pm.collectionVariables.set('userToken', token);
                   resolve();
               });
-          });
-      }
+              });
+              }
   - type: afterResponse
     language: text/javascript
     code: |-
@@ -37,9 +33,20 @@ scripts:
           pm.response.to.have.status(200);
       });
 
-      pm.test("Order is marked as paid after webhook", function () {
-          const response = pm.response.json();
-          pm.expect(response.id).to.eql(pm.collectionVariables.get('orderId'));
-          pm.expect(response.paymentStatus).to.eql('PAID');
-          pm.expect(response.status).to.eql('PAID');
+      pm.test("Response is an order object", function () {
+          pm.expect(pm.response.json()).to.be.an('object');
       });
+
+      pm.test("Order has paymentReference and items", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('paymentReference');
+          pm.expect(response.paymentReference).to.match(/^cs_/);
+          pm.expect(response.paymentStatus).to.eql('PENDING');
+          pm.expect(response.items.length).to.be.greaterThan(0);
+          pm.expect(response.items[0].book.id).to.eql(pm.collectionVariables.get('workflowBookId'));
+      });
+
+      pm.collectionVariables.set('paymentSessionId', pm.response.json().paymentReference);
+      pm.collectionVariables.set('paymentSessionStatus', pm.response.json().paymentStatus);
+      pm.collectionVariables.set('orderId', pm.response.json().id);
+

@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR(50) NOT NULL,
     payment_status VARCHAR(50) NOT NULL,
     total_amount NUMERIC(12,2) NOT NULL,
-    payment_reference VARCHAR(255) NOT NULL,
+    payment_reference VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -45,25 +45,4 @@ CREATE TABLE IF NOT EXISTS order_items (
     unit_price NUMERIC(12,2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS vehicles (
-    id UUID PRIMARY KEY,
-    brand VARCHAR(255) NOT NULL,
-    model VARCHAR(255) NOT NULL,
-    year INT NOT NULL,
-    price FLOAT NOT NULL,
-    rented BOOLEAN NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    plate VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS rentals (
-    id UUID PRIMARY KEY,
-    vehicle_id UUID NOT NULL,
-    user_id UUID NOT NULL,
-    rent_date_time TIMESTAMP NOT NULL,
-    return_date_time TIMESTAMP,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

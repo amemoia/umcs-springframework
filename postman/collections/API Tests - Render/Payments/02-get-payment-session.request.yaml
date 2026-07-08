@@ -7,6 +7,13 @@ headers:
   - key: Authorization
     value: Bearer {{userToken}}
 scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const orderId = pm.collectionVariables.get('orderId');
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Set orderId before requesting payment session.');
+      }
   - type: afterResponse
     language: text/javascript
     code: |-

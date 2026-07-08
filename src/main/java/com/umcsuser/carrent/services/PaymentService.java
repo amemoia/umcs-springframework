@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umcsuser.carrent.models.Order;
 import com.umcsuser.carrent.models.OrderItem;
 import com.umcsuser.carrent.models.OrderStatus;
@@ -89,20 +93,67 @@ public class PaymentService {
                 return new PaymentConfirmation(null, null, PaymentStatus.PENDING, "Ignored Stripe event: " + eventType);
             }
 
-            StripeObject dataObject = event.getDataObjectDeserializer().getObject()
-                    .orElseThrow(() -> new RuntimeException("Unable to deserialize Stripe session payload"));
-            Session stripeSession = (Session) dataObject;
-            String orderId = extractOrderId(stripeSession);
-            Order order = loadOrder(orderId);
+            // Try to deserialize using Stripe SDK; if that fails, fall back to parsing JSON directly
+            Session stripeSession = null;
+            String sessionId = null;
+            String stripeStatus = null;
+            String orderId = null;
 
-            PaymentStatus paymentStatus = mapStripeStatus(stripeSession.getStatus());
+            try {
+                StripeObject dataObject = event.getDataObjectDeserializer().getObject().orElse(null);
+                if (dataObject instanceof Session) {
+                    stripeSession = (Session) dataObject;
+                    sessionId = stripeSession.getId();
+                    // Try to read the most relevant status fields. Stripe may populate
+                    // either `status` or `payment_status` depending on the event/API
+                    // version. Prefer `status` but fall back to `payment_status`.
+                    stripeStatus = stripeSession.getStatus();
+                    if (stripeStatus == null && stripeSession.getPaymentStatus() != null) {
+                        stripeStatus = stripeSession.getPaymentStatus();
+                    }
+                    orderId = extractOrderId(stripeSession);
+                }
+            } catch (Exception ignored) {
+                // continue to JSON fallback
+            }
+
+            if (sessionId == null) {
+                // Fallback: parse payload JSON directly to extract session fields
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(payload);
+                JsonNode obj = root.path("data").path("object");
+                if (obj.isMissingNode()) {
+                    throw new RuntimeException("Unable to deserialize Stripe session payload");
+                }
+                sessionId = obj.path("id").asText(null);
+                // Stripe may include either `status` or `payment_status` in the webhook
+                // payload depending on the event and API version. Try both.
+                stripeStatus = obj.path("status").asText(null);
+                if (stripeStatus == null || stripeStatus.isBlank()) {
+                    stripeStatus = obj.path("payment_status").asText(null);
+                }
+                // metadata.orderId or client_reference_id
+                if (obj.has("metadata") && obj.path("metadata").has("orderId")) {
+                    orderId = obj.path("metadata").path("orderId").asText(null);
+                }
+                if (orderId == null && obj.has("client_reference_id")) {
+                    orderId = obj.path("client_reference_id").asText(null);
+                }
+            }
+
+            if (orderId == null) {
+                throw new RuntimeException("Stripe session does not contain an order reference");
+            }
+
+            Order order = loadOrder(orderId);
+            PaymentStatus paymentStatus = mapStripeStatus(stripeStatus);
             order.setPaymentStatus(paymentStatus);
             order.setStatus(paymentStatus == PaymentStatus.PAID ? OrderStatus.PAID : OrderStatus.CANCELLED);
-            order.setPaymentReference(stripeSession.getId());
+            order.setPaymentReference(sessionId);
             orderJpaRepository.save(order);
 
             return new PaymentConfirmation(
-                    stripeSession.getId(),
+                    sessionId,
                     orderId,
                     paymentStatus,
                     "Stripe webhook processed successfully"
@@ -186,8 +237,8 @@ public class PaymentService {
         }
 
         return switch (stripeStatus.toLowerCase(Locale.ROOT)) {
-            case "complete" -> PaymentStatus.PAID;
-            case "expired" -> PaymentStatus.FAILED;
+            case "complete", "paid", "succeeded" -> PaymentStatus.PAID;
+            case "expired", "failed", "unpaid" -> PaymentStatus.FAILED;
             default -> PaymentStatus.PENDING;
         };
     }
@@ -205,8 +256,14 @@ public class PaymentService {
     }
 
     private Order loadOrder(String orderId) {
-        return orderJpaRepository.findById(UUID.fromString(orderId))
-                .orElseThrow(() -> new RuntimeException("Order " + orderId + " does not exist"));
+        try {
+            return orderJpaRepository.findById(UUID.fromString(orderId))
+                    .orElseThrow(() -> new RuntimeException("Order " + orderId + " does not exist"));
+        } catch (IllegalArgumentException e) {
+            // Invalid UUID format - return a 400 Bad Request to the caller rather than allowing
+            // the raw IllegalArgumentException to bubble up as a 500.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid order id: " + orderId, e);
+        }
     }
 
     private boolean hasPaymentReference(Order order) {

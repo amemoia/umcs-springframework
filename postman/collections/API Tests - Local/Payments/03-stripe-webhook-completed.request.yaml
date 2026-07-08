@@ -24,6 +24,14 @@ scripts:
           throw new Error('Set stripeWebhookSecret in the collection variables before running the webhook test.');
       }
 
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Make sure the checkout/create payment steps ran and set orderId.');
+      }
+
+      if (!paymentSessionId) {
+          throw new Error('Missing collection variable: paymentSessionId. Make sure the create/checkout payment step produced a paymentSessionId.');
+      }
+
       const payloadObject = {
           id: `evt_${Date.now()}`,
           object: 'event',

@@ -1,5 +1,6 @@
 package com.umcsuser.carrent.web;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import com.umcsuser.carrent.services.PaymentService;
 import com.umcsuser.carrent.services.UserService;
 
 @RestController
+@Profile("!cli")
 @RequestMapping("/api/payments")
 public class PaymentController {
 

@@ -1,4 +1,0 @@
-$kind: folder
-name: Book CRUD
-description: Tests for the /api/books endpoints (CRUD)
-order: 3000

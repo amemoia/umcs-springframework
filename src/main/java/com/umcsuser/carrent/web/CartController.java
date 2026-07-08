@@ -2,6 +2,7 @@ package com.umcsuser.carrent.web;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import com.umcsuser.carrent.services.CartService;
 import com.umcsuser.carrent.services.UserService;
 
 @RestController
+@Profile("!cli")
 @RequestMapping("/api/cart")
 public class CartController {
 
