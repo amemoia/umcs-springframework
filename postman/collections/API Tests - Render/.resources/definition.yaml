@@ -3,14 +3,20 @@ name: API Tests - Render
 description: chungus
 variables:
   baseUrl: https://umcs-springframework.onrender.com
-  knownVehicleId: 65b0cdb4-58c7-419a-97bf-811af7f3fe41
+  knownBookId: 11111111-1111-1111-1111-111111111111
   adminUserId: 00000000-0000-0000-0000-000000000001
   regularUserId: a62399e0-940e-4649-abe1-d928397f4d2b
-  workflowVehicleId: ""
-  createdCarId: ""
-  createdMotorcycleId: ""
+  workflowBookId: ""
+  createdBookId: ""
+  cartBookId: ""
+  cartItemId: ""
+  orderId: ""
+  paymentSessionId: ""
+  paymentSessionStatus: ""
+  paymentCheckoutUrl: ""
   adminToken: ""
   userToken: ""
-  rentedVehicleId: ""
-  rentalId: ""
-  remoteCreatedCarId: ""
+  cartToken: ""
+  stripeWebhookSecret: ""
+  stripeWebhookBody: ""
+  stripeWebhookSignature: ""

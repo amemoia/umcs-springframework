@@ -1,0 +1,9 @@
+stripe listen --forward-to localhost:8080/api/payments/webhook
+
+test card 4242 4242 4242 4242
+
+Projekt księgarni:
+2.5 pkt. CRUD + Spring Security(logowanie/rejestracja) z podziałem na role : admin -dodaje i usuwa książki z księgarni, user możne przeglądać.
+2.5 pkt punktów CRUD + koszyk - dodawanie usuwanie książek przez Usera.
+2.5 pkt punktów Zamówienia - Dodanie funkcji które może wykonywać User - składanie zamówień na książki, zmiana statusu zamówienia przez admina.
+2.5 pkt punktów Płatności - podpięcie np. Stripe

@@ -1,0 +1,52 @@
+$kind: http-request
+name: '03 - Checkout Order'
+method: POST
+url: '{{baseUrl}}/api/orders/checkout'
+order: 820
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const userToken = pm.collectionVariables.get('userToken');
+      if (!userToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: { 'Content-Type': 'application/json' },
+                  body: { mode: 'raw', raw: JSON.stringify({ login: 'user', password: 'user123' }) }
+              }, (err, resp) => {
+                  if (err) { reject(err); return; }
+                  const token = resp.json().token;
+                  pm.collectionVariables.set('userToken', token);
+                  resolve();
+              });
+          });
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an order object", function () {
+          pm.expect(pm.response.json()).to.be.an('object');
+      });
+
+      pm.test("Order has paymentReference and items", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('paymentReference');
+          pm.expect(response.paymentReference).to.match(/^cs_/);
+          pm.expect(response.paymentStatus).to.eql('PENDING');
+          pm.expect(response.items.length).to.be.greaterThan(0);
+          pm.expect(response.items[0].book.id).to.eql(pm.collectionVariables.get('workflowBookId'));
+      });
+
+      pm.collectionVariables.set('paymentSessionId', pm.response.json().paymentReference);
+      pm.collectionVariables.set('paymentSessionStatus', pm.response.json().paymentStatus);
+      pm.collectionVariables.set('orderId', pm.response.json().id);
+

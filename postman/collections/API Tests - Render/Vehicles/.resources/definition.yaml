@@ -1,4 +1,4 @@
 $kind: folder
-name: Vehicles
-description: Tests for the /api/vehicles endpoints (CRUD)
+name: Book CRUD
+description: Tests for the /api/books endpoints (CRUD)
 order: 3000

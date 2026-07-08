@@ -1,0 +1,4 @@
+$kind: folder
+name: Payments
+description: Tests for the Stripe payment session and webhook flow.
+order: 4500

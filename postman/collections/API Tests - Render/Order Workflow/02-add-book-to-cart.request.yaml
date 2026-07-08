@@ -1,0 +1,70 @@
+$kind: http-request
+name: '02 - Add Book To Cart'
+method: POST
+url: '{{baseUrl}}/api/cart'
+order: 810
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: Bearer {{userToken}}
+body:
+  type: json
+  content: |-
+    {
+      "bookId": "{{cartBookId}}",
+      "quantity": 2
+    }
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const cartBookId = pm.collectionVariables.get('workflowBookId') || pm.collectionVariables.get('createdBookId') || pm.collectionVariables.get('knownBookId');
+      pm.collectionVariables.set('cartBookId', cartBookId);
+
+      const userToken = pm.collectionVariables.get('userToken');
+
+      if (!userToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: {
+                      mode: 'raw',
+                      raw: JSON.stringify({
+                          login: 'user',
+                          password: 'user123'
+                      })
+                  }
+              }, (error, response) => {
+                  if (error) {
+                      reject(error);
+                      return;
+                  }
+
+                  const token = response.json().token;
+                  pm.collectionVariables.set('userToken', token);
+                  pm.collectionVariables.set('cartToken', token);
+                  resolve();
+              });
+          });
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Cart item contains the workflow book", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('id');
+          pm.expect(response.quantity).to.eql(2);
+          pm.expect(response.book.id).to.eql(pm.collectionVariables.get('cartBookId'));
+      });
+
+      pm.collectionVariables.set('cartItemId', pm.response.json().id);
+

@@ -1,0 +1,46 @@
+$kind: http-request
+name: '04 - Cleanup Delete Book'
+method: DELETE
+url: '{{baseUrl}}/api/books/{{createdBookId}}'
+order: 830
+headers:
+  - key: Authorization
+    value: Bearer {{adminToken}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const workflowBookId = pm.collectionVariables.get('workflowBookId');
+      const createdBookId = pm.collectionVariables.get('createdBookId');
+      const bookId = workflowBookId || createdBookId;
+
+      if (!bookId) {
+          throw new Error('Missing collection variable: workflowBookId or createdBookId. Skipping cleanup delete; ensure the workflow book create step ran.');
+      }
+
+      // Force the URL placeholder to resolve to the workflow-created book when present.
+      pm.collectionVariables.set('createdBookId', bookId);
+
+      const adminToken = pm.collectionVariables.get('adminToken');
+      if (!adminToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: { 'Content-Type': 'application/json' },
+                  body: { mode: 'raw', raw: JSON.stringify({ login: 'admin', password: 'admin123' }) }
+              }, (err, resp) => {
+                  if (err) { reject(err); return; }
+                  const token = resp.json().token;
+                  pm.collectionVariables.set('adminToken', token);
+                  resolve();
+              });
+          });
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200 or 204", function () {
+          pm.expect([200, 204]).to.include(pm.response.code);
+      });
+

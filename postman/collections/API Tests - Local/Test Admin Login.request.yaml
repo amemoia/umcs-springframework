@@ -1,6 +1,7 @@
 $kind: http-request
-url: '{{baseUrl}}/api/auth/login'
+name: 'Smoke Admin Login'
 method: POST
+url: '{{baseUrl}}/api/auth/login'
 body:
   type: json
   content: |-
@@ -12,10 +13,9 @@ scripts:
   - type: afterResponse
     language: text/javascript
     code: |-
-      console.log("RESPONSE BODY:", pm.response.text());
       pm.test("Status code is 200", function () {
           pm.response.to.have.status(200);
       });
       const token = pm.response.json().token;
       pm.collectionVariables.set("adminToken", token);
-order: 3724831850759008
+order: 2778180348807035

@@ -1,12 +1,13 @@
 package com.umcsuser.carrent.services;
 
-import com.umcsuser.carrent.models.User;
-import com.umcsuser.carrent.repositories.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.UserRepository;
+
 @Service
-public class AuthService implements IAuthService {
+public class AuthService {
     private final UserRepository userRepository;
 
     public AuthService(UserRepository userRepository) {

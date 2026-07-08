@@ -1,21 +1,20 @@
 package com.umcsuser.carrent.services;
 
-import com.umcsuser.carrent.models.User;
-import com.umcsuser.carrent.repositories.UserRepository;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.UserRepository;
 
 @Service
 @Transactional
-public class UserService implements IUserService {
+public class UserService {
     private final UserRepository userRepository;
-    private final RentalService rentalService;
 
-    public UserService(UserRepository userRepository, RentalService rentalService) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.rentalService = rentalService;
     }
 
     public List<User> findAllUsers() {
@@ -36,12 +35,5 @@ public class UserService implements IUserService {
             throw new RuntimeException("User with login " + login + " doesn't exist");
         }
         return user;
-    }
-
-    public void deleteUser(String userId, String adminId) {
-        User admin = findById(adminId);
-        if (userRepository.removeUser(userId, admin) <= 0) {
-            throw new RuntimeException("couldnt remove this user");
-        }
     }
 }

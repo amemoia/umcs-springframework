@@ -1,0 +1,33 @@
+$kind: http-request
+name: '02 - Get Payment Session'
+method: GET
+url: '{{baseUrl}}/api/payments/{{orderId}}'
+order: 4520
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const orderId = pm.collectionVariables.get('orderId');
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Set orderId before requesting payment session.');
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Returned session matches the created Stripe session", function () {
+          const response = pm.response.json();
+          pm.expect(response.sessionId).to.eql(pm.collectionVariables.get('paymentSessionId'));
+          pm.expect(response.orderId).to.eql(pm.collectionVariables.get('orderId'));
+          pm.expect(response.checkoutUrl).to.eql(pm.collectionVariables.get('paymentCheckoutUrl'));
+      });
+
+      pm.test("Session stays pending until Stripe confirms payment", function () {
+          pm.expect(pm.response.json().paymentStatus).to.eql('PENDING');
+      });

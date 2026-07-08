@@ -1,0 +1,43 @@
+$kind: http-request
+name: '01 - Create Payment Session'
+method: POST
+url: '{{baseUrl}}/api/payments/{{orderId}}'
+order: 4510
+headers:
+  - key: Authorization
+    value: Bearer {{userToken}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const orderId = pm.collectionVariables.get('orderId');
+      if (!orderId) {
+          throw new Error('Missing collection variable: orderId. Make sure you ran the Checkout Order step or set orderId before creating a payment session.');
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is a payment session", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('sessionId');
+          pm.expect(response).to.have.property('orderId');
+          pm.expect(response).to.have.property('checkoutUrl');
+          pm.expect(response).to.have.property('paymentStatus');
+      });
+
+      pm.test("Session belongs to an order and capture orderId", function () {
+          const response = pm.response.json();
+          pm.expect(response.orderId).to.be.a('string').that.is.not.empty;
+          pm.expect(response.sessionId).to.match(/^cs_/);
+          pm.expect(response.paymentStatus).to.eql('PENDING');
+          // Store the orderId returned by the server so subsequent requests use the correct order
+          pm.collectionVariables.set('orderId', response.orderId);
+      });
+
+      pm.collectionVariables.set('paymentSessionId', pm.response.json().sessionId);
+      pm.collectionVariables.set('paymentCheckoutUrl', pm.response.json().checkoutUrl);
+      pm.collectionVariables.set('paymentSessionStatus', pm.response.json().paymentStatus);

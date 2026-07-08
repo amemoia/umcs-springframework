@@ -1,0 +1,74 @@
+$kind: http-request
+name: 'Add Book To Cart'
+method: POST
+url: '{{baseUrl}}/api/cart'
+order: 625
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: Bearer {{cartToken}}
+body:
+  type: json
+  content: |-
+    {
+            "bookId": "{{cartBookId}}",
+      "quantity": 1
+    }
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+            const cartBookId = pm.collectionVariables.get('createdBookId') || pm.collectionVariables.get('workflowBookId') || pm.collectionVariables.get('knownBookId');
+            pm.collectionVariables.set('cartBookId', cartBookId);
+
+      const cartToken = pm.collectionVariables.get('cartToken');
+      const userToken = pm.collectionVariables.get('userToken');
+
+      if (!cartToken) {
+          if (userToken) {
+              pm.collectionVariables.set('cartToken', userToken);
+          } else {
+              await new Promise((resolve, reject) => {
+                  pm.sendRequest({
+                      url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                      method: 'POST',
+                      header: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: {
+                          mode: 'raw',
+                          raw: JSON.stringify({
+                              login: 'user',
+                              password: 'user123'
+                          })
+                      }
+                  }, (error, response) => {
+                      if (error) {
+                          reject(error);
+                          return;
+                      }
+
+                      const token = response.json().token;
+                      pm.collectionVariables.set('userToken', token);
+                      pm.collectionVariables.set('cartToken', token);
+                      resolve();
+                  });
+              });
+          }
+      }
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Cart item contains the created book", function () {
+          const response = pm.response.json();
+          pm.expect(response).to.have.property('id');
+          pm.expect(response.quantity).to.eql(1);
+          pm.expect(response.book.id).to.eql(pm.collectionVariables.get('cartBookId'));
+      });
+
+      pm.collectionVariables.set('cartItemId', pm.response.json().id);

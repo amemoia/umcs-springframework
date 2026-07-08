@@ -1,6 +1,7 @@
 $kind: http-request
-url: '{{baseUrl}}/api/auth/login'
+name: 'Smoke Admin Login'
 method: POST
+url: '{{baseUrl}}/api/auth/login'
 body:
   type: json
   content: |-
@@ -12,7 +13,6 @@ scripts:
   - type: afterResponse
     language: text/javascript
     code: |-
-      console.log("RESPONSE BODY:", pm.response.text());
       pm.test("Status code is 200", function () {
           pm.response.to.have.status(200);
       });

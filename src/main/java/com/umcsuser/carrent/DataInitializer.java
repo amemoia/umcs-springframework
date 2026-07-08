@@ -1,35 +1,39 @@
 package com.umcsuser.carrent;
 
-import com.umcsuser.carrent.models.Role;
-import com.umcsuser.carrent.models.User;
-import com.umcsuser.carrent.models.Vehicle;
-import com.umcsuser.carrent.repositories.UserRepository;
-import com.umcsuser.carrent.repositories.VehicleRepository;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import com.umcsuser.carrent.models.Book;
+import com.umcsuser.carrent.models.Role;
+import com.umcsuser.carrent.models.User;
+import com.umcsuser.carrent.repositories.BookJpaRepository;
+import com.umcsuser.carrent.repositories.UserRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
-    private final VehicleRepository vehicleRepository;
+    private final ObjectProvider<BookJpaRepository> bookJpaRepositoryProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UserRepository userRepository, VehicleRepository vehicleRepository, PasswordEncoder passwordEncoder) {
+    public DataInitializer(UserRepository userRepository, ObjectProvider<BookJpaRepository> bookJpaRepositoryProvider, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.vehicleRepository = vehicleRepository;
+        this.bookJpaRepositoryProvider = bookJpaRepositoryProvider;
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        initializeUser("admin", "admin123", Role.ADMIN, "00000000-0000-0000-0000-000000000001");
-        initializeUser("user", "user123", Role.USER, "a62399e0-940e-4649-abe1-d928397f4d2b");
-        initializeVehicle("65b0cdb4-58c7-419a-97bf-811af7f3fe41", "CAR", "Tesla", "Model S", 2022, 500.0f);
-    }
+     @Override
+     public void run(String... args) throws Exception {
+         initializeUser("admin", "admin123", Role.ADMIN, "00000000-0000-0000-0000-000000000001");
+         initializeUser("user", "user123", Role.USER, "a62399e0-940e-4649-abe1-d928397f4d2b");
+         BookJpaRepository bookJpaRepository = bookJpaRepositoryProvider.getIfAvailable();
+         if (bookJpaRepository != null) {
+             initializeBook(bookJpaRepository, "11111111-1111-1111-1111-111111111111", "Chungus Adventure 1", "the chungusfather", "1111111111111", 167.77, 12);
+             initializeBook(bookJpaRepository, "22222222-2222-2222-2222-222222222222", "Legend of Solid Chungus", "buh", "2222222222222", 169.99, 8);
+         }
+     }
 
     private void initializeUser(String login, String password, Role role, String id) {
         if (userRepository.getUser(login) == null) {
@@ -43,18 +47,17 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void initializeVehicle(String id, String category, String brand, String model, int year, float price) {
-        if (vehicleRepository.getVehicle(id) == null) {
-            Vehicle vehicle = Vehicle.builder()
-                    .id(id)
-                    .category(category)
-                    .brand(brand)
-                    .model(model)
-                    .year(year)
-                    .price(price)
-                    .build();
-            vehicleRepository.add(vehicle);
-            System.out.println("Initialized vehicle: " + brand + " " + model);
+    private void initializeBook(BookJpaRepository bookJpaRepository, String id, String title, String author, String isbn, double price, int stock) {
+        if (bookJpaRepository.findById(java.util.UUID.fromString(id)).isEmpty()) {
+            Book book = new Book();
+            book.setId(id);
+            book.setTitle(title);
+            book.setAuthor(author);
+            book.setIsbn(isbn);
+            book.setPrice(java.math.BigDecimal.valueOf(price));
+            book.setStock(stock);
+            bookJpaRepository.save(book);
+            System.out.println("Initialized book: " + title);
         }
     }
 }

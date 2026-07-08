@@ -1,0 +1,4 @@
+$kind: folder
+name: Cart
+description: Tests for per-user carts and admin cart access.
+order: 3500

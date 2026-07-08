@@ -1,0 +1,60 @@
+$kind: http-request
+name: '01 - Create Workflow Book'
+method: POST
+url: '{{baseUrl}}/api/books'
+order: 800
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: Bearer {{adminToken}}
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      // Ensure admin is logged in
+      const adminToken = pm.collectionVariables.get('adminToken');
+      if (!adminToken) {
+          await new Promise((resolve, reject) => {
+              pm.sendRequest({
+                  url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                  method: 'POST',
+                  header: { 'Content-Type': 'application/json' },
+                  body: { mode: 'raw', raw: JSON.stringify({ login: 'admin', password: 'admin123' }) }
+              }, (err, resp) => {
+                  if (err) { reject(err); return; }
+                  const token = resp.json().token;
+                  pm.collectionVariables.set('adminToken', token);
+                  resolve();
+              });
+          });
+      }
+      // generate a unique ISBN for this run to avoid duplicate-key errors
+      const baseIsbn = '9780321125217';
+      const uniqueIsbn = `${baseIsbn}-${Date.now()}`;
+      pm.collectionVariables.set('workflowIsbn', uniqueIsbn);
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has a non-empty id", function () {
+          const id = pm.response.json().id;
+          pm.expect(id).to.be.a('string');
+          pm.expect(id.length).to.be.above(0);
+      });
+
+      pm.collectionVariables.set('workflowBookId', pm.response.json().id);
+body:
+  type: json
+  content: |-
+    {
+      "title": "Domain-Driven Design",
+      "author": "Eric Evans",
+      "isbn": "{{workflowIsbn}}",
+      "price": 189.99,
+      "stock": 4,
+      "description": "Workflow book used in cart/order tests"
+    }

@@ -1,29 +1,62 @@
 $kind: http-request
-name: 'Create Car (Remote DB)'
+name: 'Add Book To Cart'
 method: POST
-url: '{{baseUrl}}/api/vehicles'
+url: '{{baseUrl}}/api/cart'
 order: 620
 headers:
   - key: Content-Type
     value: application/json
   - key: Authorization
-    value: Bearer {{adminToken}}
+    value: Bearer {{cartToken}}
 body:
   type: json
   content: |-
     {
-      "category": "CAR",
-      "brand": "Honda",
-      "model": "Civic",
-      "year": 2024,
-      "price": 175.0,
-      "attributes": {
-        "plate": "REMOTE01",
-        "fuelType": "Petrol",
-        "numberOfSeats": 5
-      }
+      "bookId": "{{cartBookId}}",
+      "quantity": 1
     }
 scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const cartBookId = pm.collectionVariables.get('createdBookId') || pm.collectionVariables.get('workflowBookId') || pm.collectionVariables.get('knownBookId');
+      pm.collectionVariables.set('cartBookId', cartBookId);
+
+      const cartToken = pm.collectionVariables.get('cartToken');
+      const userToken = pm.collectionVariables.get('userToken');
+
+      if (!cartToken) {
+          if (userToken) {
+              pm.collectionVariables.set('cartToken', userToken);
+          } else {
+              await new Promise((resolve, reject) => {
+                  pm.sendRequest({
+                      url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',
+                      method: 'POST',
+                      header: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: {
+                          mode: 'raw',
+                          raw: JSON.stringify({
+                              login: 'user',
+                              password: 'user123'
+                          })
+                      }
+                  }, (error, response) => {
+                      if (error) {
+                          reject(error);
+                          return;
+                      }
+
+                      const token = response.json().token;
+                      pm.collectionVariables.set('userToken', token);
+                      pm.collectionVariables.set('cartToken', token);
+                      resolve();
+                  });
+              });
+          }
+      }
   - type: afterResponse
     language: text/javascript
     code: |-
@@ -31,27 +64,5 @@ scripts:
           pm.response.to.have.status(200);
       });
 
-      pm.test("Response has a non-empty id", function () {
-          const id = pm.response.json().id;
-          pm.expect(id).to.be.a('string');
-          pm.expect(id.length).to.be.above(0);
-      });
-
-      pm.test("Category is 'CAR'", function () {
-          pm.expect(pm.response.json().category).to.eql('CAR');
-      });
-
-      pm.test("Brand is 'Honda'", function () {
-          pm.expect(pm.response.json().brand).to.eql('Honda');
-      });
-
-      pm.test("Model is 'Civic'", function () {
-          pm.expect(pm.response.json().model).to.eql('Civic');
-      });
-
-      pm.test("New vehicle is not rented", function () {
-          pm.expect(pm.response.json().rented).to.be.false;
-      });
-
-      pm.collectionVariables.set('remoteCreatedCarId', pm.response.json().id);
+      pm.collectionVariables.set('cartItemId', pm.response.json().id);
 

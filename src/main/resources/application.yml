@@ -8,10 +8,13 @@ server:
 carrent:
   json:
     users-file: ${CARENT_USERS_FILE:users.json}
-    vehicles-file: ${CARENT_VEHICLES_FILE:vehicles.json}
-    rentals-file: ${CARENT_RENTALS_FILE:rentals.json}
-    categories-file: ${CARENT_CATEGORIES_FILE:categories.json}
 jwt:
   secret: ${JWT_SECRET:5Sy1-R-Zj7ajgcabswkEttARiS8Q4Vs9IhYCVAt1bQ0}
   expiration: ${JWT_EXPIRATION:3600000}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+    success-url: ${STRIPE_SUCCESS_URL:http://localhost:8080/api/payments/success?session_id={CHECKOUT_SESSION_ID}}
+    cancel-url: ${STRIPE_CANCEL_URL:http://localhost:8080/api/payments/cancel}
+    currency: ${STRIPE_CURRENCY:pln}
 
