@@ -5,28 +5,28 @@ url: '{{baseUrl}}/api/books'
 order: 510
 headers:
   - key: Authorization
-  value: Bearer {{userToken}}
+    value: Bearer {{userToken}}
 scripts:
   - type: afterResponse
-  language: text/javascript
-  code: |-
-    pm.test("Status code is 200", function () {
-      pm.response.to.have.status(200);
-    });
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+        pm.response.to.have.status(200);
+      });
 
-    pm.test("Response is a JSON array", function () {
-      pm.expect(pm.response.json()).to.be.an('array');
-    });
+      pm.test("Response is a JSON array", function () {
+        pm.expect(pm.response.json()).to.be.an('array');
+      });
 
-    pm.test("At least one book has stock available", function () {
-      pm.expect(pm.response.json().some(function (book) { return book.stock > 0; })).to.be.true;
-    });
+      pm.test("At least one book has stock available", function () {
+        pm.expect(pm.response.json().some(function (book) { return book.stock > 0; })).to.be.true;
+      });
 
-    pm.test("Known seed book is in results", function () {
-      const ids = pm.response.json().map(function (book) { return book.id; });
-      pm.expect(ids).to.include(pm.collectionVariables.get('knownBookId'));
-    });
+      pm.test("Known seed book is in results", function () {
+        const ids = pm.response.json().map(function (book) { return book.id; });
+        pm.expect(ids).to.include(pm.collectionVariables.get('knownBookId'));
+      });
 
-    pm.test("Response time is below 2000ms", function () {
-      pm.expect(pm.response.responseTime).to.be.below(2000);
-    });
+      pm.test("Response time is below 2000ms", function () {
+        pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
